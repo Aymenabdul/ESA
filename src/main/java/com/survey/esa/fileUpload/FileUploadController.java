@@ -110,4 +110,19 @@ private boolean isValid(FIledata fileData) {
     public List<String> getDistinctAssemblyConstituencies() {
         return fileDataService.getDistinctAssemblyConstituencies();
     }
+
+    @GetMapping("/getFileData")
+public List<FIledata> getFileData() {
+    List<FIledata> fileDataList = fileDataService.getAllFileData();
+    if (fileDataList.isEmpty()) {
+        System.out.println("No data found!");
+    } else {
+        System.out.println("Fetched File Data: ");
+        fileDataList.forEach(data -> {
+            System.out.println("Voter ID: " + data.getVoterID() + ", Name: " + data.getName());
+        });
+    }
+    return fileDataList;
+}
+
 }

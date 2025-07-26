@@ -26,4 +26,8 @@ public class FileDataService {
       public List<String> getDistinctAssemblyConstituencies() {
         return fileDataRepository.findDistinctAssemblyConstituency();
     }
+
+   public List<FIledata> getAllFileData() {
+        return fileDataRepository.findAll();  // Assuming you're using JPA repository for database interaction
+    }
 }
