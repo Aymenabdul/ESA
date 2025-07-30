@@ -28,4 +28,12 @@ public class SurveyController {
     public Map<String, Map<String, Long>> getSurveyVoteCounts() {
         return surveyService.getSurveyVoteCounts();  // Returns a Map for each question
     }
+
+    @GetMapping("/filterByConstituencyAndBooth")
+    public Map<String, Map<String, Long>> getSurveyVoteCountsByFilter(
+            @RequestParam("constituency") String constituency,
+            @RequestParam("booth") String booth) {
+
+        return surveyService.getSurveyVoteCountsFiltered(constituency, booth);
+    }
 }
