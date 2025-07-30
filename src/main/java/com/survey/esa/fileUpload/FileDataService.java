@@ -106,4 +106,8 @@ public class FileDataService {
         return statusList;
     }
 
+    public List<String> getDistinctBooths() {
+    return fileDataRepository.findDistinctBooths();
+}
+
 }

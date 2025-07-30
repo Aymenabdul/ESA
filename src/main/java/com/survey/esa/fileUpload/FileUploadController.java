@@ -148,6 +148,13 @@ private boolean isValid(FIledata fileData) {
         return fileDataService.getDistinctAssemblyConstituencies();
     }
 
+     @GetMapping("/distinct-booths")
+    public ResponseEntity<List<String>> getDistinctBooths() {
+        List<String> booths = fileDataService.getDistinctBooths();
+        return ResponseEntity.ok(booths);
+    }
+
+
     @GetMapping("/getFileData")
 public List<FIledata> getFileData() {
     List<FIledata> fileDataList = fileDataService.getAllFileData();

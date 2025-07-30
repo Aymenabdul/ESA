@@ -11,6 +11,9 @@ public interface FileDataRepository extends JpaRepository<FIledata, Long> {
     @Query(value = "SELECT DISTINCT assembly_constituency FROM filedata", nativeQuery = true)
     List<String> findDistinctAssemblyConstituency();
 
+    @Query("SELECT DISTINCT s.booth FROM Survey s")
+    List<String> findDistinctBooths();
+
    @Query(value = "SELECT * FROM file_data f WHERE f.assembly_constituency = ?1 AND f.name = ?2 AND f.house_number = ?3 AND f.serial_number = ?4 AND f.booth = ?5 AND f.district = ?6", nativeQuery = true)
     List<FIledata> findFilteredData(String assemblyConstituency, String name, String houseNumber, String serialNumber, String booth, String district);
 
