@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/file")
@@ -124,5 +125,34 @@ public List<FIledata> getFileData() {
     }
     return fileDataList;
 }
+
+@GetMapping("/filter2")
+public List<FIledata> getFilteredData(
+    @RequestParam("assemblyConstituency") String assemblyConstituency,
+    @RequestParam(value = "name", required = false) String name,
+    @RequestParam(value = "houseNumber", required = false) String houseNumber,
+    @RequestParam(value = "serialNumber", required = false) String serialNumber,
+    @RequestParam(value = "boothNumber", required = false) String boothNumber,
+    @RequestParam(value = "district", required = false) String district) {
+
+    return fileDataService.getFilteredData(assemblyConstituency, name, houseNumber, serialNumber, boothNumber, district);
+}
+
+ @GetMapping("/getFileData/{id}")
+    public Optional<FIledata> getFileDataById(@PathVariable Long id) {
+        Optional<FIledata> fileData = fileDataService.getFileDataById(id);
+        
+        if (fileData.isEmpty()) {
+            System.out.println("No data found with ID: " + id);
+        } else {
+            System.out.println("Fetched File Data: ");
+            FIledata data = fileData.get();
+            System.out.println("Voter ID: " + data.getVoterID() + ", Name: " + data.getName());
+        }
+
+        return fileData;
+    }
+
+
 
 }

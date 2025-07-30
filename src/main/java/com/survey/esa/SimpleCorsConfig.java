@@ -9,8 +9,8 @@ public class SimpleCorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // Allow all endpoints
-                .allowedOrigins("*") // Allow all origins
-                .allowedMethods("*"); // Allow all methods (GET, POST, etc.)
+        registry.addMapping("/**")
+                .allowedOrigins("*")
+                .allowedMethods("*");
     }
 }
