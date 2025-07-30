@@ -18,54 +18,47 @@ public class SurveyService {
         return surveyRepository.save(survey);
     }
 
-     public List<Survey> getAllSurveys() {
-        return surveyRepository.findAll();  // This fetches all Survey entities from the DB
-    }
-   public Map<String, Map<String, Long>> getSurveyVoteCountsFiltered(String constituency, String boothNumber) {
-        Map<String, Map<String, Long>> allVoteCounts = new HashMap<>();
-
-        // Add counts for each question using the filtered repository methods
-
-        // Get counts for ques1
-        Map<String, Long> ques1VoteCounts = getVoteCountsfilter(surveyRepository.countVotesByQues1Filtered(constituency, boothNumber));
-        allVoteCounts.put("ques1", ques1VoteCounts);
-
-        // Get counts for ques2
-        Map<String, Long> ques2VoteCounts = getVoteCountsfilter(surveyRepository.countVotesByQues2Filtered(constituency, boothNumber));
-        allVoteCounts.put("ques2", ques2VoteCounts);
-
-        // Get counts for ques3
-        Map<String, Long> ques3VoteCounts = getVoteCountsfilter(surveyRepository.countVotesByQues3Filtered(constituency, boothNumber));
-        allVoteCounts.put("ques3", ques3VoteCounts);
-
-        // Get counts for ques4
-        Map<String, Long> ques4VoteCounts = getVoteCountsfilter(surveyRepository.countVotesByQues4Filtered(constituency, boothNumber));
-        allVoteCounts.put("ques4", ques4VoteCounts);
-
-        // Get counts for ques5
-        Map<String, Long> ques5VoteCounts = getVoteCountsfilter(surveyRepository.countVotesByQues5Filtered(constituency, boothNumber));
-        allVoteCounts.put("ques5", ques5VoteCounts);
-
-        // Get counts for ques6
-        Map<String, Long> ques6VoteCounts = getVoteCountsfilter(surveyRepository.countVotesByQues6Filtered(constituency, boothNumber));
-        allVoteCounts.put("ques6", ques6VoteCounts);
-
-        return allVoteCounts;
+    public List<Survey> getAllSurveys() {
+        return surveyRepository.findAll(); // This fetches all Survey entities from the DB
     }
 
-    // Helper method to convert query result into a map
-    private Map<String, Long> getVoteCountsfilter(List<Object[]> results) {
-        Map<String, Long> voteCounts = new HashMap<>();
-        for (Object[] result : results) {
-            String option = (String) result[0];  // Option name (Bad, Average, etc.)
-            Long count = (Long) result[1];       // Vote count
-            voteCounts.put(option, count);
-        }
-        return voteCounts;
+   public Map<String, Map<String, Long>> getSurveyVoteCountsFiltered(String constituency, String booth) {
+    Map<String, Map<String, Long>> voteCounts = new HashMap<>();
+
+    if (booth == null || booth.isEmpty()) {
+        // Query by constituency only
+        voteCounts.put("ques1", getVoteCount(surveyRepository.countVotesByQues1FilteredByConstituency(constituency)));
+        voteCounts.put("ques2", getVoteCount(surveyRepository.countVotesByQues2FilteredByConstituency(constituency)));
+        voteCounts.put("ques3", getVoteCount(surveyRepository.countVotesByQues3FilteredByConstituency(constituency)));
+        voteCounts.put("ques4", getVoteCount(surveyRepository.countVotesByQues4FilteredByConstituency(constituency)));
+        voteCounts.put("ques5", getVoteCount(surveyRepository.countVotesByQues5FilteredByConstituency(constituency)));
+        voteCounts.put("ques6", getVoteCount(surveyRepository.countVotesByQues6FilteredByConstituency(constituency)));
+    } else {
+        // Query by both constituency and booth
+        voteCounts.put("ques1", getVoteCount(surveyRepository.countVotesByQues1Filtered(constituency, booth)));
+        voteCounts.put("ques2", getVoteCount(surveyRepository.countVotesByQues2Filtered(constituency, booth)));
+        voteCounts.put("ques3", getVoteCount(surveyRepository.countVotesByQues3Filtered(constituency, booth)));
+        voteCounts.put("ques4", getVoteCount(surveyRepository.countVotesByQues4Filtered(constituency, booth)));
+        voteCounts.put("ques5", getVoteCount(surveyRepository.countVotesByQues5Filtered(constituency, booth)));
+        voteCounts.put("ques6", getVoteCount(surveyRepository.countVotesByQues6Filtered(constituency, booth)));
     }
 
+    return voteCounts;
+}
 
-     public Map<String, Map<String, Long>> getSurveyVoteCounts() {
+private Map<String, Long> getVoteCount(List<Object[]> results) {
+    Map<String, Long> voteCounts = new HashMap<>();
+    for (Object[] result : results) {
+        String option = (String) result[0];  // Option like "Yes", "No", etc.
+        Long count = (Long) result[1];  // Count of votes
+        voteCounts.put(option, count);
+    }
+    return voteCounts;
+}
+
+
+
+    public Map<String, Map<String, Long>> getSurveyVoteCounts() {
         Map<String, Map<String, Long>> allVoteCounts = new HashMap<>();
 
         // Add counts in the order: ques1, ques2, ques3, ques4, ques5, ques6
@@ -101,8 +94,8 @@ public class SurveyService {
     private Map<String, Long> getVoteCounts(List<Object[]> results) {
         Map<String, Long> voteCounts = new HashMap<>();
         for (Object[] result : results) {
-            String option = (String) result[0];  // Option name (Bad, Average, etc.)
-            Long count = (Long) result[1];       // Vote count
+            String option = (String) result[0]; // Option name (Bad, Average, etc.)
+            Long count = (Long) result[1]; // Vote count
             voteCounts.put(option, count);
         }
         return voteCounts;

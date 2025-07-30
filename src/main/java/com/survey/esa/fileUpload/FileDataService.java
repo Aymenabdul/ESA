@@ -80,4 +80,30 @@ public class FileDataService {
         return fileDataRepository.findById(id);
     }
 
+    public boolean updateVotedStatus(Long id) {
+        Optional<FIledata> fileDataOptional = fileDataRepository.findById(id);
+
+        if (fileDataOptional.isPresent()) {
+            FIledata fileData = fileDataOptional.get();
+            if (!fileData.isVoted()) { // Only update if it's not already voted
+                fileData.setVoted(true);
+                fileDataRepository.save(fileData);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public List<String> getAllVotedStatus() {
+        List<FIledata> fileDataList = fileDataRepository.findAll();  // Retrieve all records
+
+        // Create a list to store the string representation of the voted status
+        List<String> statusList = new ArrayList<>();
+        for (FIledata fileData : fileDataList) {
+            // Add "voted" or "not voted" to the list based on the 'voted' field
+            statusList.add(fileData.isVoted() ? "voted" : "not voted");
+        }
+        return statusList;
+    }
+
 }

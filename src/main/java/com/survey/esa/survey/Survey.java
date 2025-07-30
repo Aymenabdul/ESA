@@ -19,6 +19,8 @@ public class Survey {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    private String Voter_type;
+
     @Column(name = "booth")
     private String booth;
 
@@ -67,11 +69,12 @@ public class Survey {
 
     public Survey(Long id, String fileDataId, String phoneNumber, String booth, String constituency, String houseNumber,
             String gender, String name, String voterId, String voterStatus, String whatsappNumber, String ques1,
-            String ques2, String ques3, String ques4, String ques5, String ques6, LocalDateTime createdAt) {
+            String ques2, String ques3, String ques4, String ques5, String ques6, LocalDateTime createdAt, String Voter_type) {
         this.id = id;
         this.fileDataId = fileDataId;
         this.phoneNumber = phoneNumber;
         this.booth = booth;
+        this.Voter_type = Voter_type;
         this.constituency = constituency;
         this.houseNumber = houseNumber;
         this.gender = gender;
@@ -231,7 +234,12 @@ public class Survey {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-
+    public String getVoter_type() {
+        return Voter_type;
+    }
+    public void setVoter_type(String voter_type) {
+        Voter_type = voter_type;
+    }
    
 }
 

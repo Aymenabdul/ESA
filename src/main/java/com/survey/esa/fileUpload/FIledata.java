@@ -24,15 +24,17 @@ public class FIledata {
     private String houseNumber;
     private String age;
     private String gender;
+    private boolean voted = false;  // Default value for voted field
     public FIledata() {
     }
     public FIledata(String assemblyConstituency, String booth, String section, String serialNumber, String voterID,
-                    String name, String relationType, String relationName, String houseNumber, String age, String gender) {
+                    String name, String relationType, String relationName, String houseNumber, String age, String gender, boolean voted) {
         this.assemblyConstituency = assemblyConstituency;
         this.booth = booth;
         this.section = section;
         this.serialNumber = serialNumber;
         this.voterID = voterID;
+        this.voted = voted;  // Set the voted field
         this.name = name;
         this.relationType = relationType;
         this.relationName = relationName;
@@ -134,5 +136,11 @@ public class FIledata {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+    public boolean isVoted() {
+        return voted;
+    }   
+    public void setVoted(boolean voted) {
+        this.voted = voted;
     }
 }

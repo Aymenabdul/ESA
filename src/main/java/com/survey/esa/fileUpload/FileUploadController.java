@@ -1,8 +1,13 @@
 package com.survey.esa.fileUpload;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,9 +33,13 @@ public String uploadFile(@RequestParam("file") MultipartFile file) {
             List<FIledata> fileDataList = new ArrayList<>();
 
             Row headerRow = sheet.getRow(0);
+            if (headerRow == null) {
+                return "Invalid file format. No header row found.";
+            }
+            
             Map<String, Integer> columnIndexMap = new HashMap<>();
             for (int i = 0; i < headerRow.getPhysicalNumberOfCells(); i++) {
-                columnIndexMap.put(headerRow.getCell(i).getStringCellValue().trim(), i);  // Added .trim() to handle any extra spaces
+                columnIndexMap.put(headerRow.getCell(i).getStringCellValue().trim(), i); // Trim to handle extra spaces
             }
 
             for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
@@ -62,7 +71,8 @@ public String uploadFile(@RequestParam("file") MultipartFile file) {
                 System.out.println("Age: " + age);
                 System.out.println("Gender: " + gender);
 
-                FIledata fileData = new FIledata(assemblyConstituency, booth, section, serialNumber, voterID, name, relationType, relationName, houseNumber, age, gender);
+                // Set `voted` field to false by default
+                FIledata fileData = new FIledata(assemblyConstituency, booth, section, serialNumber, voterID, name, relationType, relationName, houseNumber, age, gender, false);
                 if (isValid(fileData)) {
                     fileDataList.add(fileData);
                 } else {
@@ -73,25 +83,49 @@ public String uploadFile(@RequestParam("file") MultipartFile file) {
             if (!fileDataList.isEmpty()) {
                 fileDataService.saveFileData(fileDataList);
             } else {
-                System.out.println("No data to save!");
+                System.out.println("No valid data to save!");
             }
         } catch (NumberFormatException e) {
             e.printStackTrace();
+            return "Error processing file data. Invalid number format.";
         }
 
         return "File uploaded successfully!";
     } catch (IOException e) {
         e.printStackTrace();
-        return "File upload failed!";
+        return "File upload failed due to IO error!";
     }
 }
 
+// Utility method to handle different cell types and prevent decimal values for integers
 private String getCellValue(Row row, Map<String, Integer> columnIndexMap, String columnName) {
     Integer columnIndex = columnIndexMap.get(columnName);  
     if (columnIndex != null) {
-        return row.getCell(columnIndex) != null ? row.getCell(columnIndex).toString() : "";
+        Cell cell = row.getCell(columnIndex);
+        if (cell == null) {
+            return "";  // Return empty string if cell is null
+        }
+
+        // Handle numeric values by checking if the cell is a whole number (i.e., integer)
+        if (cell.getCellType() == CellType.NUMERIC) {
+            if (DateUtil.isCellDateFormatted(cell)) {
+                // If the cell contains a date, convert it to a string
+                return cell.getDateCellValue().toString();
+            } else {
+                // For numeric (float or double), check if it’s a whole number
+                double numericValue = cell.getNumericCellValue();
+                if (numericValue == (long) numericValue) {
+                    return String.valueOf((long) numericValue);  // Convert to long and return as string (whole number)
+                } else {
+                    return String.valueOf(numericValue);  // Return decimal values as strings
+                }
+            }
+        } else {
+            // For other types (string, boolean), return the value as a string
+            return cell.toString().trim();
+        }
     }
-    return "";  
+    return "";  // Return empty string if the columnIndex is not found
 }
 
 private boolean isValid(FIledata fileData) {
@@ -101,6 +135,8 @@ private boolean isValid(FIledata fileData) {
     }
     return true;
 }
+
+
 
 @GetMapping("/filter")
     public List<FIledata> getFilteredData(@RequestParam("assemblyConstituency") String assemblyConstituency) {
@@ -153,6 +189,25 @@ public List<FIledata> getFilteredData(
         return fileData;
     }
 
-
-
+@PutMapping("/markAsVoted/{id}")
+    public ResponseEntity<String> markAsVoted(@PathVariable Long id) {
+        boolean updated = fileDataService.updateVotedStatus(id);
+        
+        if (updated) {
+            return ResponseEntity.ok("Voted status updated successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Record not found or already voted.");
+        }
+    }
+@GetMapping("/getAllVotedStatus")
+    public ResponseEntity<List<String>> getAllVotedStatus() {
+        List<String> statusList = fileDataService.getAllVotedStatus();
+        
+        if (!statusList.isEmpty()) {
+            return ResponseEntity.ok(statusList);  // Return the list of "voted" or "not voted"
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // If no records found
+        }
+    }
+    
 }
