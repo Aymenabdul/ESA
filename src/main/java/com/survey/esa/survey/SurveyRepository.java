@@ -76,6 +76,6 @@ List<Object[]> countVotesByQues1FilteredByConstituency(@Param("constituency") St
 // For filtering by constituency and booth
 
 // Repeat the above for other questions (ques2, ques3, etc.)
-
+List<Survey> findAll();
 
 }

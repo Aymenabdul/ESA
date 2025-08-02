@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/file")
+@RequestMapping("api2/file")
 public class FileUploadController {
 
     @Autowired
@@ -175,12 +175,10 @@ public List<FIledata> getFilteredData(
     @RequestParam(value = "name", required = false) String name,
     @RequestParam(value = "houseNumber", required = false) String houseNumber,
     @RequestParam(value = "serialNumber", required = false) String serialNumber,
-    @RequestParam(value = "boothNumber", required = false) String boothNumber,
-    @RequestParam(value = "district", required = false) String district) {
+    @RequestParam(value = "booth", required = false) String booth) {
 
-    return fileDataService.getFilteredData(assemblyConstituency, name, houseNumber, serialNumber, boothNumber, district);
+    return fileDataService.getFilteredData(assemblyConstituency, name, houseNumber, serialNumber, booth);
 }
-
  @GetMapping("/getFileData/{id}")
     public Optional<FIledata> getFileDataById(@PathVariable Long id) {
         Optional<FIledata> fileData = fileDataService.getFileDataById(id);
@@ -215,6 +213,27 @@ public List<FIledata> getFilteredData(
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // If no records found
         }
+    }
+
+    @GetMapping("/total-constituencies")
+    public ResponseEntity<Long> getTotalConstituencies() {
+        long totalConstituencies = fileDataService.getTotalConstituencies();
+        return ResponseEntity.ok(totalConstituencies);
+    }
+
+ @GetMapping("/total-booths")
+    public ResponseEntity<Long> getTotalBooths(@RequestParam(required = false) String constituency) {
+        long totalBooths = fileDataService.getTotalBooths(constituency);
+        return ResponseEntity.ok(totalBooths);
+    }
+
+    @GetMapping("/total-voters")
+    public ResponseEntity<Long> getTotalVoters(
+        @RequestParam(required = false) String constituency,
+        @RequestParam(required = false) String booth) {
+        
+        long totalVoters = fileDataService.getTotalVoters(constituency, booth);
+        return ResponseEntity.ok(totalVoters);
     }
     
 }

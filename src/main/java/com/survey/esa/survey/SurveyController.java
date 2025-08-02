@@ -10,11 +10,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/survey")
+@RequestMapping("/api2/survey")
 public class SurveyController {
 
     @Autowired
     private SurveyService surveyService;
+
+    @Autowired
+    private SurveyRepository surveyRepository;
 
     // Endpoint to submit a survey response
     @PostMapping("/submit")
@@ -64,5 +67,11 @@ public class SurveyController {
                     .body(errorResponse);
         }
     }
+
+    @GetMapping("/voters")
+public List<Survey> getAllVoters() {
+    return surveyRepository.findAll(); // Returns all surveys, including their verification status
+}
+
 
 }

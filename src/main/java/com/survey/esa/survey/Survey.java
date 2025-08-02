@@ -21,6 +21,8 @@ public class Survey {
 
     private String Voter_type;
 
+    private boolean isVerified = true ;
+
     @Column(name = "booth")
     private String booth;
 
@@ -69,11 +71,12 @@ public class Survey {
 
     public Survey(Long id, String fileDataId, String phoneNumber, String booth, String constituency, String houseNumber,
             String gender, String name, String voterId, String voterStatus, String whatsappNumber, String ques1,
-            String ques2, String ques3, String ques4, String ques5, String ques6, LocalDateTime createdAt, String Voter_type) {
+            String ques2, String ques3, String ques4, String ques5, String ques6, LocalDateTime createdAt, String Voter_type, boolean isVerified) {
         this.id = id;
         this.fileDataId = fileDataId;
         this.phoneNumber = phoneNumber;
         this.booth = booth;
+        this.isVerified = isVerified;
         this.Voter_type = Voter_type;
         this.constituency = constituency;
         this.houseNumber = houseNumber;
@@ -239,6 +242,10 @@ public class Survey {
     }
     public void setVoter_type(String voter_type) {
         Voter_type = voter_type;
+    }
+
+    public boolean isVerified() {
+        return isVerified;
     }
    
 }
