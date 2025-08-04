@@ -107,15 +107,16 @@ public class FileDataService {
         }
     }
 
-     public long getTotalVoters(String constituency, String booth) {
+    public long getTotalVoters(String constituency, String booth) {
         if (constituency != null && !constituency.isEmpty() && booth != null && !booth.isEmpty()) {
+            // Return the count for the specific constituency and booth
             return fileDataRepository.countVotersByConstituencyAndBooth(constituency, booth);
         } else if (constituency != null && !constituency.isEmpty()) {
-            return fileDataRepository.countVotersByConstituency(constituency);  // Filter by constituency only
-        } else if (booth != null && !booth.isEmpty()) {
-            return fileDataRepository.countVotersByBooth(booth);  // Filter by booth only
+            // Return the count for the specific constituency (all booths for that constituency)
+            return fileDataRepository.countVotersByConstituency(constituency);
         } else {
-            return fileDataRepository.countAllVoters();  // No filter, count all voters
+            // No filter, return the count for all voters
+            return fileDataRepository.countAllVoters();
         }
     }
 

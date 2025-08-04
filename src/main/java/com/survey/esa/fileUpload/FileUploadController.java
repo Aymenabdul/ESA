@@ -227,12 +227,15 @@ public List<FIledata> getFilteredData(
         return ResponseEntity.ok(totalBooths);
     }
 
-    @GetMapping("/total-voters")
+   @GetMapping("/total-voters")
     public ResponseEntity<Long> getTotalVoters(
         @RequestParam(required = false) String constituency,
         @RequestParam(required = false) String booth) {
         
+        // Call the service to get the filtered or total voter count
         long totalVoters = fileDataService.getTotalVoters(constituency, booth);
+        
+        // Return the count as a response
         return ResponseEntity.ok(totalVoters);
     }
     
