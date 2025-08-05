@@ -1,9 +1,15 @@
 package com.survey.esa.fileUpload;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
@@ -11,8 +17,9 @@ import jakarta.persistence.Table;
 public class FIledata {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String surveyName;
     private String assemblyConstituency;
     private String booth;
     private String section;
@@ -24,30 +31,48 @@ public class FIledata {
     private String houseNumber;
     private String age;
     private String gender;
-    private boolean voted = false;  // Default value for voted field
+    private LocalDateTime createAt;
+    private boolean isActive = false;
+    private boolean voted = false;
+
     public FIledata() {
     }
-    public FIledata(String assemblyConstituency, String booth, String section, String serialNumber, String voterID,
-                    String name, String relationType, String relationName, String houseNumber, String age, String gender, boolean voted) {
+
+    public FIledata(String surveyName, String assemblyConstituency, String booth, String section,
+            String serialNumber, String voterID, String name, String relationType,
+            String relationName, String houseNumber, String age, String gender,
+            boolean isActive, boolean voted, LocalDateTime createAt) {
+        this.surveyName = surveyName;
         this.assemblyConstituency = assemblyConstituency;
         this.booth = booth;
         this.section = section;
         this.serialNumber = serialNumber;
         this.voterID = voterID;
-        this.voted = voted;  // Set the voted field
         this.name = name;
+        this.createAt = createAt;
         this.relationType = relationType;
         this.relationName = relationName;
         this.houseNumber = houseNumber;
         this.age = age;
         this.gender = gender;
+        this.isActive = isActive;
+        this.voted = voted;
     }
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getSurveyName() {
+        return surveyName;
+    }
+
+    public void setSurveyName(String surveyName) {
+        this.surveyName = surveyName;
     }
 
     public String getAssemblyConstituency() {
@@ -137,10 +162,45 @@ public class FIledata {
     public void setGender(String gender) {
         this.gender = gender;
     }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
     public boolean isVoted() {
         return voted;
-    }   
+    }
+
     public void setVoted(boolean voted) {
         this.voted = voted;
+    }
+
+    public LocalDateTime getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(LocalDateTime createAt) {
+        this.createAt = createAt;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.createAt == null) {
+            // Get current time in Asia/Kolkata timezone
+            ZonedDateTime indiaTime = ZonedDateTime.now(ZoneId.of("Asia/Kolkata"));
+
+            // Truncate to hours and minutes only by using `truncatedTo` method
+            this.createAt = indiaTime.toLocalDateTime().truncatedTo(java.time.temporal.ChronoUnit.MINUTES);
+        }
+    }
+
+    // Custom method to get formatted date and time in 12-hour format
+    public String getFormattedCreateAt() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a"); // 12-hour format with AM/PM
+        return this.createAt.format(formatter);  // Return formatted date and time
     }
 }

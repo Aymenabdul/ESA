@@ -2,9 +2,9 @@ package com.survey.esa.fileUpload;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FileDataRepository extends JpaRepository<FIledata, Long> {
   List<FIledata> findByAssemblyConstituency(String assemblyConstituency);
@@ -43,4 +43,21 @@ public interface FileDataRepository extends JpaRepository<FIledata, Long> {
 
   @Query("SELECT COUNT(DISTINCT f.booth) FROM FIledata f WHERE f.assemblyConstituency = :constituency")
   long countBoothsByConstituency(@Param("constituency") String constituency);
+
+
+  //with token 
+
+@Query(value = "SELECT f.survey_name, " +
+               "COUNT(DISTINCT f.assembly_constituency), " +
+               "COUNT(DISTINCT f.booth), " +
+               "MAX(f.create_at), " +
+               "f.is_active " +
+               "FROM filedata f " +
+               "GROUP BY f.survey_name, f.is_active", nativeQuery = true)
+List<Object[]> getSurveyStatsGroupedBySurveyName();
+
+List<FIledata> findBySurveyName(String surveyName);
+
+
+
 }

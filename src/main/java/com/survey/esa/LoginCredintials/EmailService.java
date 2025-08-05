@@ -14,6 +14,7 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @SuppressWarnings("CallToPrintStackTrace")
     public void sendActivationEmail(String toEmail, String userName) {
         String subject = "Account Activated for Pulse Survey";
         String body = "<html>"
@@ -62,6 +63,7 @@ public class EmailService {
         }
     }
 
+    @SuppressWarnings("CallToPrintStackTrace")
     public void sendDeclineEmail(String toEmail, String userName) {
         String subject = "Account Declined for Pulse Survey";
         String body = "<html>"

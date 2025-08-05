@@ -1,11 +1,13 @@
 package com.survey.esa.jwttoken;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import java.util.Date;
 
 @Component
 public class JwtUtil {
@@ -26,6 +28,7 @@ public class JwtUtil {
         System.out.println("JWT token generated: " + token);
         return token;
     }
+    @SuppressWarnings("UseSpecificCatch")
     public boolean validateToken(String token) {
         System.out.println("Validating JWT token: " + token);
         try {
@@ -39,6 +42,7 @@ public class JwtUtil {
             return false;
         }
     }
+    @SuppressWarnings("UseSpecificCatch")
     public String extractUsername(String token) {
         try {
             System.out.println("Parsing token: " + token);
@@ -55,6 +59,7 @@ public class JwtUtil {
         }
         return null;
     }
+    @SuppressWarnings("UseSpecificCatch")
     public String extractEmail(String token) {
         try {
             System.out.println("Parsing token: " + token);

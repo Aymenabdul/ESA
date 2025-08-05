@@ -1,20 +1,17 @@
 package com.survey.esa.fileUpload;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class FileDataService {
 
     @Autowired
     private FileDataRepository fileDataRepository; // Repository to persist the data
-
-    @jakarta.persistence.PersistenceContext
-    private jakarta.persistence.EntityManager entityManager;
 
     public void saveFileData(List<FIledata> fileDataList) {
         if (fileDataList.isEmpty()) {
@@ -118,6 +115,42 @@ public class FileDataService {
             // No filter, return the count for all voters
             return fileDataRepository.countAllVoters();
         }
+    }
+
+    public boolean activateSurvey(String surveyName) {
+        // Fetch all the records for the given surveyName
+        List<FIledata> fileDataList = fileDataRepository.findBySurveyName(surveyName);
+
+        if (fileDataList.isEmpty()) {
+            return false; // No data found for the given survey name
+        }
+
+        // Set isActive to true for each record and save
+        for (FIledata fileData : fileDataList) {
+            fileData.setActive(true); // Activate the record
+        }
+
+        // Save all the updated records
+        fileDataRepository.saveAll(fileDataList);
+        return true;
+    }
+
+    public boolean deactivateSurvey(String surveyName) {
+        // Fetch all the records for the given surveyName
+        List<FIledata> fileDataList = fileDataRepository.findBySurveyName(surveyName);
+
+        if (fileDataList.isEmpty()) {
+            return false; // No data found for the given survey name
+        }
+
+        // Set isActive to false for each record and save
+        for (FIledata fileData : fileDataList) {
+            fileData.setActive(false); // Deactivate the record
+        }
+
+        // Save all the updated records
+        fileDataRepository.saveAll(fileDataList);
+        return true;
     }
 
 }
