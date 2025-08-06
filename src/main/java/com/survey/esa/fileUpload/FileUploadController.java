@@ -6,9 +6,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -198,7 +200,7 @@ public class FileUploadController {
 
     @PutMapping("/activate-survey")
     public ResponseEntity<String> activateSurvey(
-            @RequestParam("surveyName") String surveyName, 
+            @RequestParam("surveyName") String surveyName,
             @RequestHeader("Authorization") String authorizationHeader) {
         String jwtToken = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
         if (jwtToken == null || jwtToken.isEmpty() || !jwtUtil.validateToken(jwtToken)) {
@@ -214,7 +216,7 @@ public class FileUploadController {
 
     @PutMapping("/deactivate-survey")
     public ResponseEntity<String> deactivateSurvey(
-            @RequestParam("surveyName") String surveyName, 
+            @RequestParam("surveyName") String surveyName,
             @RequestHeader("Authorization") String authorizationHeader) {
         String jwtToken = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
         if (jwtToken == null || jwtToken.isEmpty() || !jwtUtil.validateToken(jwtToken)) {
@@ -228,46 +230,47 @@ public class FileUploadController {
         }
     }
 
-//..........................................................................................................................................
-    @GetMapping("/filter")
-    public List<FIledata> getFilteredData(@RequestParam("assemblyConstituency") String assemblyConstituency) {
-        return fileDataService.getDataByAssemblyConstituency(assemblyConstituency);
+    @GetMapping("/active")
+    public ResponseEntity<Object> getActiveSurveyNames() {
+        List<String> activeSurveyNames = fileDataService.getActiveSurveyNames();
+        Set<String> uniqueSurveyNames = new HashSet<>(activeSurveyNames);
+        if (uniqueSurveyNames.isEmpty()) {
+            return ResponseEntity.status(404).body("No active surveys found");  // Return custom message if no active surveys
+        }
+        return ResponseEntity.ok(uniqueSurveyNames);
     }
 
     @GetMapping("/distinct-constituencies")
-    public List<String> getDistinctAssemblyConstituencies() {
-        return fileDataService.getDistinctAssemblyConstituencies();
+    public List<String> getDistinctAssemblyConstituencies(@RequestParam("surveyName") String surveyName) {
+        return fileDataService.getDistinctAssemblyConstituenciesBySurveyName(surveyName);
     }
 
     @GetMapping("/distinct-booths")
-    public ResponseEntity<List<String>> getDistinctBooths() {
-        List<String> booths = fileDataService.getDistinctBooths();
-        return ResponseEntity.ok(booths);
-    }
+    public ResponseEntity<List<String>> getDistinctBooths(
+            @RequestParam("surveyName") String surveyName,
+            @RequestParam("Constituency") String assemblyConstituency) {
 
-    @GetMapping("/getFileData")
-    public List<FIledata> getFileData() {
-        List<FIledata> fileDataList = fileDataService.getAllFileData();
-        if (fileDataList.isEmpty()) {
-            System.out.println("No data found!");
-        } else {
-            System.out.println("Fetched File Data: ");
-            fileDataList.forEach(data -> {
-                System.out.println("Voter ID: " + data.getVoterID() + ", Name: " + data.getName());
-            });
-        }
-        return fileDataList;
+        List<String> booths = fileDataService.getDistinctBoothsBySurveyNameAndConstituency(surveyName, assemblyConstituency);
+        return ResponseEntity.ok(booths);
     }
 
     @GetMapping("/filter2")
     public List<FIledata> getFilteredData(
-            @RequestParam("assemblyConstituency") String assemblyConstituency,
+            @RequestParam("surveyName") String surveyName,
+            @RequestParam("Constituency") String assemblyConstituency,
+            @RequestParam("booth") String booth,
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "houseNumber", required = false) String houseNumber,
-            @RequestParam(value = "serialNumber", required = false) String serialNumber,
-            @RequestParam(value = "booth", required = false) String booth) {
+            @RequestParam(value = "serialNumber", required = false) String serialNumber) {
 
-        return fileDataService.getFilteredData(assemblyConstituency, name, houseNumber, serialNumber, booth);
+        return fileDataService.getFilteredData(
+                surveyName,
+                assemblyConstituency,
+                booth,
+                name,
+                houseNumber,
+                serialNumber
+        );
     }
 
     @GetMapping("/getFileData/{id}")
@@ -308,27 +311,48 @@ public class FileUploadController {
     }
 
     @GetMapping("/total-constituencies")
-    public ResponseEntity<Long> getTotalConstituencies() {
-        long totalConstituencies = fileDataService.getTotalConstituencies();
+    public ResponseEntity<Long> getTotalConstituencies(@RequestParam("surveyName") String surveyName) {
+        long totalConstituencies = fileDataService.getTotalConstituenciesBySurveyName(surveyName);
         return ResponseEntity.ok(totalConstituencies);
     }
 
     @GetMapping("/total-booths")
-    public ResponseEntity<Long> getTotalBooths(@RequestParam(required = false) String constituency) {
-        long totalBooths = fileDataService.getTotalBooths(constituency);
+    public ResponseEntity<Long> getTotalBooths(
+            @RequestParam("surveyName") String surveyName,
+            @RequestParam("Constituency") String constituency) {
+        long totalBooths = fileDataService.getTotalBoothsBySurveyNameAndConstituency(surveyName, constituency);
         return ResponseEntity.ok(totalBooths);
     }
 
-    @GetMapping("/total-voters")
-    public ResponseEntity<Long> getTotalVoters(
-            @RequestParam(required = false) String constituency,
-            @RequestParam(required = false) String booth) {
+    @GetMapping("/filter-counts")
+    public ResponseEntity<Map<String, Long>> getSurveyCounts(
+            @RequestParam(value = "surveyName", required = false) String surveyName, // Optional
+            @RequestParam(value = "constituency", required = false) String constituency, // Optional
+            @RequestParam(value = "booth", required = false) String booth // Optional
+    ) {
+        // If no surveyName is provided, return counts as 0
+        if (surveyName == null || surveyName.isEmpty()) {
+            Map<String, Long> counts = new HashMap<>();
+            counts.put("constituencyCount", 0L);
+            counts.put("boothCount", 0L);
+            counts.put("voterCount", 0L);
+            return ResponseEntity.ok(counts);
+        }
+        Map<String, Long> counts = null;
+        if (constituency != null && booth != null) {
+            counts = fileDataService.getCountsBySurveyNameAndConstituencyAndBooth(surveyName, constituency, booth);
+        } else if (constituency != null) {
+            counts = fileDataService.getCountsBySurveyNameAndConstituency(surveyName, constituency);
+        } else {
+            counts = fileDataService.getCountsBySurveyName(surveyName);
+        }
 
-        // Call the service to get the filtered or total voter count
-        long totalVoters = fileDataService.getTotalVoters(constituency, booth);
+        // If no counts found, return a 404 status
+        if (counts == null || counts.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
 
-        // Return the count as a response
-        return ResponseEntity.ok(totalVoters);
+        return ResponseEntity.ok(counts); // Return the counts as a map
     }
 
 }

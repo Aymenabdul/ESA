@@ -1,8 +1,11 @@
 package com.survey.esa.fileUpload;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,41 +25,39 @@ public class FileDataService {
         }
     }
 
+    public List<String> getActiveSurveyNames() {
+        // Fetch surveys with isActive = true and return their survey names
+        List<FIledata> activeSurveys = fileDataRepository.findByIsActiveTrue();
+        return activeSurveys.stream()
+                .map(FIledata::getSurveyName)
+                .collect(Collectors.toList());
+    }
+
     public List<FIledata> getDataByAssemblyConstituency(String assemblyConstituency) {
         return fileDataRepository.findByAssemblyConstituency(assemblyConstituency);
     }
 
-    public List<String> getDistinctAssemblyConstituencies() {
-        return fileDataRepository.findDistinctAssemblyConstituency();
-    }
-
-    public List<FIledata> getAllFileData() {
-        return fileDataRepository.findAll(); // Assuming you're using JPA repository for database interaction
-    }
-
-   public List<FIledata> getFilteredData(String assemblyConstituency, String name, String houseNumber, 
-                                       String serialNumber, String booth) {
-    // Trim and normalize booth (case-insensitive and remove spaces)
-    if (booth != null && !booth.isEmpty()) {
-        booth = booth.trim().toLowerCase();  // Normalize and trim booth
-    }
-
-    // Debugging output to see the received parameters
-    System.out.println("Assembly Constituency: " + assemblyConstituency);
-    System.out.println("Name: " + name);
-    System.out.println("House Number: " + houseNumber);
-    System.out.println("Serial Number: " + serialNumber);
-    System.out.println("Booth: " + booth);
-
-    // Call the repository method to apply the filters
-    return fileDataRepository.findFilteredData(assemblyConstituency, name, houseNumber, 
-                                               serialNumber, booth);
+    public List<String> getDistinctAssemblyConstituenciesBySurveyName(String surveyName) {
+    return fileDataRepository.findDistinctAssemblyConstituenciesBySurveyName(surveyName);
 }
 
-
-
-
-
+    public List<FIledata> getFilteredData(
+        String surveyName, 
+        String assemblyConstituency, 
+        String booth, 
+        String name, 
+        String houseNumber, 
+        String serialNumber) {
+    
+    return fileDataRepository.findFilteredData(
+            surveyName, 
+            assemblyConstituency, 
+            booth, 
+            name, 
+            houseNumber, 
+            serialNumber
+    );
+}
     public Optional<FIledata> getFileDataById(Long id) {
         return fileDataRepository.findById(id);
     }
@@ -87,34 +88,44 @@ public class FileDataService {
         return statusList;
     }
 
-    public List<String> getDistinctBooths() {
-        return fileDataRepository.findDistinctBooths();
+    public List<String> getDistinctBoothsBySurveyNameAndConstituency(String surveyName, String assemblyConstituency) {
+    return fileDataRepository.findDistinctBoothsBySurveyNameAndConstituency(surveyName, assemblyConstituency);
+}
+
+
+   public long getTotalConstituenciesBySurveyName(String surveyName) {
+    return fileDataRepository.countDistinctConstituenciesBySurveyName(surveyName);
+}
+
+    public long getTotalBoothsBySurveyNameAndConstituency(String surveyName, String constituency) {
+    return fileDataRepository.countBoothsBySurveyNameAndConstituency(surveyName, constituency);
+}
+
+    // Get counts based only on the survey name
+    public Map<String, Long> getCountsBySurveyName(String surveyName) {
+        Map<String, Long> result = new HashMap<>();
+        result.put("constituencyCount", fileDataRepository.countConstituenciesBySurveyName(surveyName));
+        result.put("boothCount", fileDataRepository.countBoothsBySurveyName(surveyName));
+        result.put("voterCount", fileDataRepository.countVotersBySurveyName(surveyName));
+        return result;
     }
 
-
-    public long getTotalConstituencies() {
-        return fileDataRepository.countDistinctConstituencies();
+    // Get counts based on survey name and constituency
+    public Map<String, Long> getCountsBySurveyNameAndConstituency(String surveyName, String constituency) {
+        Map<String, Long> result = new HashMap<>();
+        result.put("constituencyCount", fileDataRepository.countConstituenciesBySurveyNameAndConstituency(surveyName, constituency));
+        result.put("boothCount", fileDataRepository.countBoothsBySurveyNameAndConstituency(surveyName, constituency));
+        result.put("voterCount", fileDataRepository.countVotersBySurveyNameAndConstituency(surveyName, constituency));
+        return result;
     }
 
-    public long getTotalBooths(String constituency) {
-        if (constituency == null || constituency.isEmpty()) {
-            return fileDataRepository.countAllBooths();  // Return count of all booths
-        } else {
-            return fileDataRepository.countBoothsByConstituency(constituency);  // Filter by constituency
-        }
-    }
-
-    public long getTotalVoters(String constituency, String booth) {
-        if (constituency != null && !constituency.isEmpty() && booth != null && !booth.isEmpty()) {
-            // Return the count for the specific constituency and booth
-            return fileDataRepository.countVotersByConstituencyAndBooth(constituency, booth);
-        } else if (constituency != null && !constituency.isEmpty()) {
-            // Return the count for the specific constituency (all booths for that constituency)
-            return fileDataRepository.countVotersByConstituency(constituency);
-        } else {
-            // No filter, return the count for all voters
-            return fileDataRepository.countAllVoters();
-        }
+    // Get counts based on survey name, constituency, and booth
+    public Map<String, Long> getCountsBySurveyNameAndConstituencyAndBooth(String surveyName, String constituency, String booth) {
+        Map<String, Long> result = new HashMap<>();
+        result.put("constituencyCount", fileDataRepository.countConstituenciesBySurveyNameAndConstituencyAndBooth(surveyName, constituency, booth));
+        result.put("boothCount", fileDataRepository.countBoothsBySurveyNameAndConstituencyAndBooth(surveyName, constituency, booth));
+        result.put("voterCount", fileDataRepository.countVotersBySurveyNameAndConstituencyAndBooth(surveyName, constituency, booth));
+        return result;
     }
 
     public boolean activateSurvey(String surveyName) {
