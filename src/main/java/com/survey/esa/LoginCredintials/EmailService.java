@@ -33,7 +33,7 @@ public class EmailService {
                 + "<p>We are excited to inform you that your account for Pulse Survey has been successfully <strong>activated</strong>.</p>"
                 + "<p style='font-size: 16px;'>You can now log in and begin using the application to participate in various surveys. We value your feedback!</p>"
                 + "<div style='margin: 20px 0; text-align: center;'>"
-                + "<a href='#' style='background-color: #4CAF50; color: white; padding: 12px 25px; text-decoration: none; font-size: 16px; border-radius: 5px;'>Login to Pulse Survey</a>"
+                + "<a href='http://172.20.10.4:5174/login' style='background-color: #4CAF50; color: white; padding: 12px 25px; text-decoration: none; font-size: 16px; border-radius: 5px;'>Login to Pulse Survey</a>"
                 + "</div>"
                 + "<p>If you have any issues logging in, please reach out to your admin.</p>"
                 + "<p>Thank you for being part of Pulse Survey. We look forward to your valuable input!</p>"

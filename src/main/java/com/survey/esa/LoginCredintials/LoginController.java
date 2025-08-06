@@ -1,19 +1,28 @@
 package com.survey.esa.LoginCredintials;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.survey.esa.jwttoken.JwtUtil;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api2")
@@ -55,14 +64,25 @@ public class LoginController {
      * use the error status i used in the response to show in the front end
      **/
     @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")  // Ensure only ADMINs can access
-    public ResponseEntity<List<UserTable>> getAllUsers() {
-        List<UserTable> users = userService.getAllUsers();
-        if (users.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(users);
+@PreAuthorize("hasRole('ADMIN')")  // Ensure only ADMINs can access this endpoint
+public ResponseEntity<List<UserTable>> getAllSurveyors() {
+    // Fetch all users from the service
+    List<UserTable> users = userService.getAllUsers();
+
+    // Filter the list to include only users with the "surveyor" role
+    List<UserTable> surveyors = users.stream()
+                                      .filter(user -> "Surveyor".equals(user.getRole())) // Filter by role
+                                      .collect(Collectors.toList());
+
+    // Check if the filtered list is empty
+    if (surveyors.isEmpty()) {
+        return ResponseEntity.noContent().build(); // Return 204 No Content if no surveyors are found
     }
+
+    // Return the filtered list of surveyors
+    return ResponseEntity.ok(surveyors); // Return the surveyors list with HTTP 200 OK status
+}
+
 
     /**
      * Login controller
@@ -71,34 +91,61 @@ public class LoginController {
      **/
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody UserTable loginCredentials) {
-        Optional<UserTable> user = userService.findByEmail(loginCredentials.getEmail());
-        if (!user.isPresent()) {
-            user = userService.findByPhoneNumber(loginCredentials.getPhoneNumber());
-        }
-        if (user.isPresent()) {
-            UserTable foundUser = user.get();
-            if ("surveyor".equals(foundUser.getRole()) && !foundUser.isAccept()) {
-                return new ResponseEntity<>(
-                        Map.of("message", "Your access is denied. Please contact the admin to get access."),
-                        HttpStatus.FORBIDDEN);
-            }
-            boolean passwordMatches = userService.checkPassword(loginCredentials.getPassword(),
-                    foundUser.getPassword());
-            if (passwordMatches) {
-                String token = jwtUtil.generateToken(foundUser.getName(), foundUser.getEmail());
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "Login Successful");
-                response.put("token", token);
+public ResponseEntity<Map<String, String>> login(@RequestBody UserTable loginCredentials) {
+    // Search for user by email first
+    Optional<UserTable> user = userService.findByEmail(loginCredentials.getEmail());
 
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(Map.of("message", "Invalid Credentials"), HttpStatus.UNAUTHORIZED);
-            }
+    // If not found by email, try by phone number
+    if (!user.isPresent()) {
+        user = userService.findByPhoneNumber(loginCredentials.getPhoneNumber());
+    }
+    
+    // If user is found
+    if (user.isPresent()) {
+        UserTable foundUser = user.get();
+
+        // Bypass checks for admin role
+        if ("Admin".equals(foundUser.getRole())) {
+            String token = jwtUtil.generateToken(foundUser.getName(), foundUser.getEmail());
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Login Successful");
+            response.put("token", token);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+        // Check if isAccept is Pending or Declined for non-admin users
+        if ("pending".equals(foundUser.getAccept()) || "Declined".equals(foundUser.getAccept())) {
+            return new ResponseEntity<>(
+                    Map.of("message", "Your account is either pending or declined. Please contact the admin."),
+                    HttpStatus.FORBIDDEN);
+        }
+
+        // If the user is a surveyor and their isAccept is not "Accepted", deny access
+        if ("surveyor".equals(foundUser.getRole()) && !"Accepted".equals(foundUser.getAccept())) {
+            return new ResponseEntity<>(
+                    Map.of("message", "Your access is denied. Please contact the admin to get access."),
+                    HttpStatus.FORBIDDEN);
+        }
+
+        // Check password
+        boolean passwordMatches = userService.checkPassword(loginCredentials.getPassword(), foundUser.getPassword());
+        
+        if (passwordMatches) {
+            String token = jwtUtil.generateToken(foundUser.getName(), foundUser.getEmail());
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Login Successful");
+            response.put("token", token);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(Map.of("message", "Invalid Credentials"), HttpStatus.UNAUTHORIZED);
         }
+    } else {
+        return new ResponseEntity<>(Map.of("message", "Invalid Credentials"), HttpStatus.UNAUTHORIZED);
     }
+}
+
+
 
     /**
      * Getting user details controller
@@ -143,58 +190,77 @@ public class LoginController {
      * key : autherization , value : Bearer <token>
      **/
     @PutMapping("/activate-user")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> activateUser(
-            @RequestHeader("Authorization") String authorizationHeader,
-            @RequestParam String email) {
-        String token = authorizationHeader.replace("Bearer ", "");
-        if (!jwtUtil.validateToken(token)) {
-            return ResponseEntity.status(401).body("Unauthorized: Invalid token");
-        }
-        Optional<UserTable> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isPresent()) {
-            UserTable user = userOptional.get();
-            if (user.isAccept()) {
-                return ResponseEntity.ok("User with email " + email + " is already activated.");
-            }
-            user.setAccept(true);
-            userRepository.save(user);
-            emailService.sendActivationEmail(user.getEmail(), user.getName());
-            return ResponseEntity.ok("User with email " + email + " has been activated and notified.");
-        } else {
-            return ResponseEntity.badRequest().body("User with email " + email + " not found.");
-        }
+@PreAuthorize("hasRole('ADMIN')")
+public ResponseEntity<String> activateUser(
+        @RequestHeader("Authorization") String authorizationHeader,
+        @RequestParam String email) {
+    String token = authorizationHeader.replace("Bearer ", "");
+    
+    // Validate token
+    if (!jwtUtil.validateToken(token)) {
+        return ResponseEntity.status(401).body("Unauthorized: Invalid token");
     }
 
-    /**
-     * Admin access controller for decline user login 
-     * pass the email as the params and pass the autherization in the header like this 
-     * key : autherization , value : Bearer <token>
-     **/
-    @PutMapping("/decline-user")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> declineUser(
-            @RequestHeader("Authorization") String authorizationHeader,
-            @RequestParam String email) {
-        String token = authorizationHeader.replace("Bearer ", "");
-        if (!jwtUtil.validateToken(token)) {
-            return ResponseEntity.status(401).body("Unauthorized: Invalid token");
+    // Fetch user by email
+    Optional<UserTable> userOptional = userRepository.findByEmail(email);
+    if (userOptional.isPresent()) {
+        UserTable user = userOptional.get();
+        
+        // Check if user is already activated
+        if ("Accepted".equals(user.getAccept())) {
+            return ResponseEntity.ok("User with email " + email + " is already activated.");
         }
-        Optional<UserTable> userOptional = userRepository.findByEmail(email);
 
-        if (userOptional.isPresent()) {
-            UserTable user = userOptional.get();
-            if (!user.isAccept()) {
-                return ResponseEntity.ok("User with email " + email + " is already declined.");
-            }
-            user.setAccept(false);
-            userRepository.save(user);
-            emailService.sendDeclineEmail(user.getEmail(), user.getName());
+        // Update user status to "Accepted"
+        user.setAccept("Accepted");
+        userRepository.save(user);
 
-            return ResponseEntity.ok("User with email " + email + " has been declined and notified.");
-        } else {
-            return ResponseEntity.badRequest().body("User with email " + email + " not found.");
-        }
+        // Send activation email
+        emailService.sendActivationEmail(user.getEmail(), user.getName());
+
+        return ResponseEntity.ok("User with email " + email + " has been activated and notified.");
+    } else {
+        return ResponseEntity.badRequest().body("User with email " + email + " not found.");
     }
+}
+
+/**
+ * Admin access controller for declining a user
+ */
+@PutMapping("/decline-user")
+@PreAuthorize("hasRole('ADMIN')")
+public ResponseEntity<String> declineUser(
+        @RequestHeader("Authorization") String authorizationHeader,
+        @RequestParam String email) {
+    String token = authorizationHeader.replace("Bearer ", "");
+    
+    // Validate token
+    if (!jwtUtil.validateToken(token)) {
+        return ResponseEntity.status(401).body("Unauthorized: Invalid token");
+    }
+
+    // Fetch user by email
+    Optional<UserTable> userOptional = userRepository.findByEmail(email);
+    if (userOptional.isPresent()) {
+        UserTable user = userOptional.get();
+        
+        // Check if user is already declined
+        if ("Declined".equals(user.getAccept())) {
+            return ResponseEntity.ok("User with email " + email + " is already declined.");
+        }
+
+        // Update user status to "Declined"
+        user.setAccept("Declined");
+        userRepository.save(user);
+
+        // Send decline email
+        emailService.sendDeclineEmail(user.getEmail(), user.getName());
+
+        return ResponseEntity.ok("User with email " + email + " has been declined and notified.");
+    } else {
+        return ResponseEntity.badRequest().body("User with email " + email + " not found.");
+    }
+}
+
 
 }

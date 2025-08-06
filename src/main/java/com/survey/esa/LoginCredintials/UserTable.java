@@ -1,8 +1,15 @@
 package com.survey.esa.LoginCredintials;
 
-import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
@@ -24,7 +31,7 @@ public class UserTable {
     private OffsetDateTime createdAt;
     
     @Column(name = "is_accepted")
-    private boolean isAccept = false;
+    private String isAccept = "pending";
 
     // This method will be automatically called by JPA right before an entity is first saved to the database.
     @PrePersist
@@ -40,7 +47,7 @@ public class UserTable {
     // You can remove the createdAt field from your constructor as it will be set automatically.
     
     public UserTable(Long id, String name, String email, String role, String constituency, String phoneNumber,
-            String password, boolean isAccept) {
+            String password, String isAccept) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -107,11 +114,11 @@ public class UserTable {
         this.createdAt = createdAt;
     }
 
-    public boolean isAccept() {
+    public String getAccept() {
         return isAccept;
     }
 
-    public void setAccept(boolean accept) {
+    public void setAccept(String accept) {
         isAccept = accept;
     }
 
