@@ -1,6 +1,7 @@
 package com.survey.esa.survey;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -77,5 +78,10 @@ List<Object[]> countVotesByQues1FilteredByConstituency(@Param("constituency") St
 
 // Repeat the above for other questions (ques2, ques3, etc.)
 List<Survey> findAll();
+
+List<Survey> findByUserIdAndSurveyName(Long userId, String surveyName);
+
+Optional<Survey> findBySurveyNameAndFileDataId(String surveyName, String fileDataId);
+Optional<Survey> findBySurveyNameAndId(String surveyName, Long id);
 
 }
