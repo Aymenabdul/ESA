@@ -76,109 +76,128 @@ public class SurveyController {
     }
 
     @GetMapping("/voters")
-public List<Survey> getAllVoters() {
-    return surveyRepository.findAll(); // Returns all surveys, including their verification status
-}
-
-@GetMapping("/votersbyId")
-public List<Survey> getAllVoters(
-    @RequestParam(value = "userId", required = false) Long userId,  // Use 'userId' instead of 'id'
-    @RequestParam(value = "surveyName", required = false) String surveyName
-) {
-    if (userId != null && surveyName != null) {
-        return surveyRepository.findByUserIdAndSurveyName(userId, surveyName);  // Corrected method call
-    } else {
-        return surveyRepository.findAll();  // Returns all if no filters are applied
-    }
-}
-
-
-@PutMapping("/update-by-fileid")
-public ResponseEntity<Survey> updateSurveyByFileDataId(
-    @RequestParam String surveyName,
-    @RequestParam String fileDataId,
-    @RequestBody Survey updatedSurvey) {
-
-    // Find the Survey by surveyName and fileDataId
-    Optional<Survey> existingSurveyOptional = surveyRepository.findBySurveyNameAndFileDataId(surveyName, fileDataId);
-
-    if (!existingSurveyOptional.isPresent()) {
-        return ResponseEntity.notFound().build(); // If the Survey doesn't exist, return 404
+    public List<Survey> getAllVoters() {
+        return surveyRepository.findAll(); // Returns all surveys, including their verification status
     }
 
-    Survey existingSurvey = existingSurveyOptional.get();
-
-    // Update fields of the existing Survey entity with the new values from the request body
-    existingSurvey.setPhoneNumber(updatedSurvey.getPhoneNumber());
-    existingSurvey.setVoter_type(updatedSurvey.getVoter_type());
-    existingSurvey.setBooth(updatedSurvey.getBooth());
-    existingSurvey.setConstituency(updatedSurvey.getConstituency());
-    existingSurvey.setHouseNumber(updatedSurvey.getHouseNumber());
-    existingSurvey.setGender(updatedSurvey.getGender());
-    existingSurvey.setName(updatedSurvey.getName());
-    existingSurvey.setVoterId(updatedSurvey.getVoterId());
-    existingSurvey.setVoterStatus(updatedSurvey.getVoterStatus());
-    existingSurvey.setWhatsappNumber(updatedSurvey.getWhatsappNumber());
-    existingSurvey.setQues1(updatedSurvey.getQues1());
-    existingSurvey.setQues2(updatedSurvey.getQues2());
-    existingSurvey.setQues3(updatedSurvey.getQues3());
-    existingSurvey.setQues4(updatedSurvey.getQues4());
-    existingSurvey.setQues5(updatedSurvey.getQues5());
-    existingSurvey.setQues6(updatedSurvey.getQues6());
-    existingSurvey.setSurveyName(updatedSurvey.getSurveyName());
-    existingSurvey.setUserId(updatedSurvey.getUserId());
-    existingSurvey.setUpdatedDate(updatedSurvey.getUpdatedDate()); // Update the timestamp for updatedDate
-
-    // Save the updated Survey back to the database
-    surveyRepository.save(existingSurvey);
-
-    // Return the updated Survey
-    return ResponseEntity.ok(existingSurvey);
-}
-
-@PutMapping("/update-by-id")
-public ResponseEntity<Survey> updateSurveyById(
-    @RequestParam String surveyName,
-    @RequestParam Long id,
-    @RequestBody Survey updatedSurvey) {
-
-    // Find the Survey by surveyName and id
-    Optional<Survey> existingSurveyOptional = surveyRepository.findBySurveyNameAndId(surveyName, id);
-
-    if (!existingSurveyOptional.isPresent()) {
-        return ResponseEntity.notFound().build(); // If the Survey doesn't exist, return 404
+    @GetMapping("/votersbyId")
+    public List<Survey> getAllVoters(
+            @RequestParam(value = "userId", required = false) Long userId, // Use 'userId' instead of 'id'
+            @RequestParam(value = "surveyName", required = false) String surveyName
+    ) {
+        if (userId != null && surveyName != null) {
+            return surveyRepository.findByUserIdAndSurveyName(userId, surveyName);  // Corrected method call
+        } else {
+            return surveyRepository.findAll();  // Returns all if no filters are applied
+        }
     }
 
-    Survey existingSurvey = existingSurveyOptional.get();
+    @PutMapping("/update-by-fileid")
+    public ResponseEntity<Survey> updateSurveyByFileDataId(
+            @RequestParam String surveyName,
+            @RequestParam String fileDataId,
+            @RequestBody Survey updatedSurvey) {
 
-    // Update fields of the existing Survey entity with the new values from the request body
-    existingSurvey.setPhoneNumber(updatedSurvey.getPhoneNumber());
-    existingSurvey.setVoter_type(updatedSurvey.getVoter_type());
-    existingSurvey.setBooth(updatedSurvey.getBooth());
-    existingSurvey.setConstituency(updatedSurvey.getConstituency());
-    existingSurvey.setHouseNumber(updatedSurvey.getHouseNumber());
-    existingSurvey.setGender(updatedSurvey.getGender());
-    existingSurvey.setName(updatedSurvey.getName());
-    existingSurvey.setVoterId(updatedSurvey.getVoterId());
-    existingSurvey.setVoterStatus(updatedSurvey.getVoterStatus());
-    existingSurvey.setWhatsappNumber(updatedSurvey.getWhatsappNumber());
-    existingSurvey.setQues1(updatedSurvey.getQues1());
-    existingSurvey.setQues2(updatedSurvey.getQues2());
-    existingSurvey.setQues3(updatedSurvey.getQues3());
-    existingSurvey.setQues4(updatedSurvey.getQues4());
-    existingSurvey.setQues5(updatedSurvey.getQues5());
-    existingSurvey.setQues6(updatedSurvey.getQues6());
-    existingSurvey.setSurveyName(updatedSurvey.getSurveyName());
-    existingSurvey.setUserId(updatedSurvey.getUserId());
-    existingSurvey.setUpdatedDate(updatedSurvey.getUpdatedDate()); // Update the timestamp for updatedDate
+        // Find the Survey by surveyName and fileDataId
+        Optional<Survey> existingSurveyOptional = surveyRepository.findBySurveyNameAndFileDataId(surveyName, fileDataId);
 
-    // Save the updated Survey back to the database
-    surveyRepository.save(existingSurvey);
+        if (!existingSurveyOptional.isPresent()) {
+            return ResponseEntity.notFound().build(); // If the Survey doesn't exist, return 404
+        }
 
-    // Return the updated Survey
-    return ResponseEntity.ok(existingSurvey);
-}
+        Survey existingSurvey = existingSurveyOptional.get();
 
+        // Update fields of the existing Survey entity with the new values from the request body
+        existingSurvey.setPhoneNumber(updatedSurvey.getPhoneNumber());
+        existingSurvey.setVoter_type(updatedSurvey.getVoter_type());
+        existingSurvey.setBooth(updatedSurvey.getBooth());
+        existingSurvey.setConstituency(updatedSurvey.getConstituency());
+        existingSurvey.setHouseNumber(updatedSurvey.getHouseNumber());
+        existingSurvey.setGender(updatedSurvey.getGender());
+        existingSurvey.setName(updatedSurvey.getName());
+        existingSurvey.setVoterId(updatedSurvey.getVoterId());
+        existingSurvey.setVoterStatus(updatedSurvey.getVoterStatus());
+        existingSurvey.setWhatsappNumber(updatedSurvey.getWhatsappNumber());
+        existingSurvey.setQues1(updatedSurvey.getQues1());
+        existingSurvey.setQues2(updatedSurvey.getQues2());
+        existingSurvey.setQues3(updatedSurvey.getQues3());
+        existingSurvey.setQues4(updatedSurvey.getQues4());
+        existingSurvey.setQues5(updatedSurvey.getQues5());
+        existingSurvey.setQues6(updatedSurvey.getQues6());
+        existingSurvey.setSurveyName(updatedSurvey.getSurveyName());
+        existingSurvey.setUserId(updatedSurvey.getUserId());
+        existingSurvey.setUpdatedDate(updatedSurvey.getUpdatedDate()); // Update the timestamp for updatedDate
 
+        // Save the updated Survey back to the database
+        surveyRepository.save(existingSurvey);
+
+        // Return the updated Survey
+        return ResponseEntity.ok(existingSurvey);
+    }
+
+    @PutMapping("/update-by-id")
+    public ResponseEntity<Survey> updateSurveyById(
+            @RequestParam String surveyName,
+            @RequestParam Long id,
+            @RequestBody Survey updatedSurvey) {
+
+        // Find the Survey by surveyName and id
+        Optional<Survey> existingSurveyOptional = surveyRepository.findBySurveyNameAndId(surveyName, id);
+
+        if (!existingSurveyOptional.isPresent()) {
+            return ResponseEntity.notFound().build(); // If the Survey doesn't exist, return 404
+        }
+
+        Survey existingSurvey = existingSurveyOptional.get();
+
+        // Update fields of the existing Survey entity with the new values from the request body
+        existingSurvey.setPhoneNumber(updatedSurvey.getPhoneNumber());
+        existingSurvey.setVoter_type(updatedSurvey.getVoter_type());
+        existingSurvey.setBooth(updatedSurvey.getBooth());
+        existingSurvey.setConstituency(updatedSurvey.getConstituency());
+        existingSurvey.setHouseNumber(updatedSurvey.getHouseNumber());
+        existingSurvey.setGender(updatedSurvey.getGender());
+        existingSurvey.setName(updatedSurvey.getName());
+        existingSurvey.setVoterId(updatedSurvey.getVoterId());
+        existingSurvey.setVoterStatus(updatedSurvey.getVoterStatus());
+        existingSurvey.setWhatsappNumber(updatedSurvey.getWhatsappNumber());
+        existingSurvey.setQues1(updatedSurvey.getQues1());
+        existingSurvey.setQues2(updatedSurvey.getQues2());
+        existingSurvey.setQues3(updatedSurvey.getQues3());
+        existingSurvey.setQues4(updatedSurvey.getQues4());
+        existingSurvey.setQues5(updatedSurvey.getQues5());
+        existingSurvey.setQues6(updatedSurvey.getQues6());
+        existingSurvey.setSurveyName(updatedSurvey.getSurveyName());
+        existingSurvey.setUserId(updatedSurvey.getUserId());
+        existingSurvey.setUpdatedDate(updatedSurvey.getUpdatedDate()); // Update the timestamp for updatedDate
+
+        // Save the updated Survey back to the database
+        surveyRepository.save(existingSurvey);
+
+        // Return the updated Survey
+        return ResponseEntity.ok(existingSurvey);
+    }
+
+    @GetMapping("/survey-by-fileid")
+    public ResponseEntity<Survey> getSurveyByFileDataId(@RequestParam String fileDataId) {
+        Optional<Survey> surveyOptional = surveyRepository.findByFileDataId(fileDataId);
+
+        if (!surveyOptional.isPresent()) {
+            return ResponseEntity.notFound().build(); // Return 404 if not found
+        }
+
+        return ResponseEntity.ok(surveyOptional.get()); // Return the survey if found
+    }
+
+    @GetMapping("/survey-by-id")
+    public ResponseEntity<Survey> getSurveyById(@RequestParam Long id) {
+        Optional<Survey> surveyOptional = surveyRepository.findById(id);
+
+        if (!surveyOptional.isPresent()) {
+            return ResponseEntity.notFound().build(); // Return 404 if not found
+        }
+
+        return ResponseEntity.ok(surveyOptional.get()); // Return the survey if found
+    }
 
 }

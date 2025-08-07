@@ -77,11 +77,16 @@ List<Object[]> countVotesByQues1FilteredByConstituency(@Param("constituency") St
 // For filtering by constituency and booth
 
 // Repeat the above for other questions (ques2, ques3, etc.)
+@SuppressWarnings("override")
 List<Survey> findAll();
 
 List<Survey> findByUserIdAndSurveyName(Long userId, String surveyName);
 
 Optional<Survey> findBySurveyNameAndFileDataId(String surveyName, String fileDataId);
 Optional<Survey> findBySurveyNameAndId(String surveyName, Long id);
+
+Optional<Survey> findByFileDataId(String fileDataId);  // For fileDataId query
+@SuppressWarnings("override")
+Optional<Survey> findById(Long id);  // For id query
 
 }
