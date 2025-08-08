@@ -167,7 +167,7 @@ Optional<Survey> findBySurveyNameAndId(String surveyName, Long id);
 
 Optional<Survey> findByFileDataId(String fileDataId);
 @Query(value = "SELECT * FROM survey WHERE filedata_id = :fileDataId LIMIT 1", nativeQuery = true)
-    Optional<Survey> findSurveyByFileDataId(@Param("fileDataId") String fileDataId);
+Survey findSurveyByFileDataId(@Param("fileDataId") String fileDataId);
 @SuppressWarnings("override")
 Optional<Survey> findById(Long id);  // For id query
 

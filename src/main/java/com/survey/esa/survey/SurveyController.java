@@ -94,8 +94,12 @@ public ResponseEntity<Map<String, Object>> getSurveyStatus(@PathVariable String 
     System.out.println("fileDataId from URL: " + fileDataId); // Log the fileDataId
 
     // Fetch the survey based on fileDataId
-    Survey survey = surveyRepository.findSurveyByFileDataId(fileDataId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Survey not found"));
+    Survey survey = surveyRepository.findSurveyByFileDataId(fileDataId);
+
+    // Handle the case where no survey is found (return 404 if null)
+    if (survey == null) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Survey not found");
+    }
 
     // Create the response map with only required fields
     Map<String, Object> response = new HashMap<>();
