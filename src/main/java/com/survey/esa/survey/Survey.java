@@ -1,4 +1,5 @@
 package com.survey.esa.survey;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -25,7 +26,7 @@ public class Survey {
     @Column(name = "phone_number")
     private String phoneNumber;
     private String Voter_type;
-    private boolean isVerified = true ;
+    private boolean isVerified = true;
     @Column(name = "booth")
     private String booth;
     @Column(name = "constituency")
@@ -64,10 +65,11 @@ public class Survey {
     private LocalDateTime updatedDate;
     @Column(name = "user_id")
     private Long userId;
-    @Column(name = "survey_name") 
+    @Column(name = "survey_name")
     private String surveyName;
-    @Column(name="role")
+    @Column(name = "role")
     private String role;
+    private String age;
 
     public Survey() {
     }
@@ -75,13 +77,14 @@ public class Survey {
     public Survey(Long id, String fileDataId, String phoneNumber, String voter_type, boolean isVerified, String booth,
             String constituency, String houseNumber, String gender, String name, String voterId, String voterStatus,
             String whatsappNumber, String ques1, String ques2, String ques3, String ques4, String ques5, String ques6,
-            LocalDateTime createdAt, String createdBy, String updatedBy, LocalDateTime updatedDate, String surveyName,Long userId,String role) {
+            LocalDateTime createdAt, String createdBy, String updatedBy, LocalDateTime updatedDate, String surveyName, Long userId, String role, String age) {
         this.id = id;
         this.fileDataId = fileDataId;
-        this.role=role;
+        this.role = role;
         this.phoneNumber = phoneNumber;
         this.Voter_type = voter_type;
         this.userId = userId;
+        this.age = age;
         this.isVerified = isVerified;
         this.booth = booth;
         this.constituency = constituency;
@@ -304,15 +307,23 @@ public class Survey {
         this.userId = userId;
     }
 
-    public void setRole(String role){
+    public void setRole(String role) {
         this.role = role;
     }
 
-    public String getRole(){
+    public String getRole() {
         return role;
     }
 
-     @PrePersist
+    public void setAge(String age) {
+        this.age = age;
+    }
+
+    public String getAge() {
+        return age;
+    }
+
+    @PrePersist
     public void prePersist() {
         ZonedDateTime kolkataTime = ZonedDateTime.now(ZoneId.of("Asia/Kolkata"));
         this.createdAt = kolkataTime.toLocalDateTime();
@@ -324,6 +335,5 @@ public class Survey {
         ZonedDateTime kolkataTime = ZonedDateTime.now(ZoneId.of("Asia/Kolkata"));
         this.updatedDate = kolkataTime.toLocalDateTime();
     }
-   
-}
 
+}

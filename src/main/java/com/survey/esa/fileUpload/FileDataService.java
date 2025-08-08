@@ -67,13 +67,16 @@ public class FileDataService {
 
         if (fileDataOptional.isPresent()) {
             FIledata fileData = fileDataOptional.get();
-            if (!fileData.isVoted()) { // Only update if it's not already voted
-                fileData.setVoted(true);
-                fileDataRepository.save(fileData);
-                return true;
-            }
+
+            // Toggle the current voted status
+            boolean currentStatus = fileData.isVoted();
+            fileData.setVoted(!currentStatus);  // Flip the voted status
+
+            // Save the updated fileData
+            fileDataRepository.save(fileData);
+            return true;
         }
-        return false;
+        return false; // Return false if record not found
     }
 
     public List<String> getAllVotedStatus() {

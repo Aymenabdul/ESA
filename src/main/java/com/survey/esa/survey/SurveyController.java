@@ -109,17 +109,25 @@ public ResponseEntity<Map<String, Object>> getSurveyStatus(@PathVariable String 
     return ResponseEntity.ok(response);
 }
 
-    @GetMapping("/votersbyId")
-    public List<Survey> getAllVoters(
-            @RequestParam(value = "userId", required = false) Long userId, // Use 'userId' instead of 'id'
-            @RequestParam(value = "surveyName", required = false) String surveyName
-    ) {
-        if (userId != null && surveyName != null) {
-            return surveyRepository.findByUserIdAndSurveyName(userId, surveyName);  // Corrected method call
-        } else {
-            return surveyRepository.findAll();  // Returns all if no filters are applied
-        }
+   @GetMapping("/votersbyId")
+public List<Survey> getAllVoters(
+        @RequestParam(value = "userId", required = false) Long userId, 
+        @RequestParam(value = "surveyName", required = false) String surveyName
+) {
+    if (userId != null && surveyName != null) {
+        // Fetch surveys with null voterId based on both userId and surveyName
+        return surveyRepository.findByUserIdAndSurveyNameAndVoterIdIsNull(userId, surveyName);
+    } else if (userId != null) {
+        // Fetch surveys with null voterId based on userId
+        return surveyRepository.findByUserIdAndVoterIdIsNull(userId);
+    } else if (surveyName != null) {
+        // Fetch surveys with null voterId based on surveyName
+        return surveyRepository.findBySurveyNameAndVoterIdIsNull(surveyName);
+    } else {
+        // Fetch all surveys with null voterId
+        return surveyRepository.findByVoterIdIsNull();
     }
+}
 
     @PutMapping("/update-by-fileid")
     public ResponseEntity<Survey> updateSurveyByFileDataId(
@@ -154,6 +162,7 @@ public ResponseEntity<Map<String, Object>> getSurveyStatus(@PathVariable String 
         existingSurvey.setQues5(updatedSurvey.getQues5());
         existingSurvey.setQues6(updatedSurvey.getQues6());
         existingSurvey.setRole(updatedSurvey.getRole());
+        existingSurvey.setAge(updatedSurvey.getAge());
         existingSurvey.setSurveyName(updatedSurvey.getSurveyName());
         existingSurvey.setUserId(updatedSurvey.getUserId());
         existingSurvey.setUpdatedBy(updatedSurvey.getUpdatedBy());
@@ -200,6 +209,7 @@ public ResponseEntity<Map<String, Object>> getSurveyStatus(@PathVariable String 
         existingSurvey.setQues6(updatedSurvey.getQues6());
         existingSurvey.setUpdatedBy(updatedSurvey.getUpdatedBy());
         existingSurvey.setRole(updatedSurvey.getRole());
+        existingSurvey.setAge(updatedSurvey.getAge());
         existingSurvey.setSurveyName(updatedSurvey.getSurveyName());
         existingSurvey.setUserId(updatedSurvey.getUserId());
         existingSurvey.setUpdatedDate(updatedSurvey.getUpdatedDate()); // Update the timestamp for updatedDate

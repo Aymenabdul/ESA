@@ -171,4 +171,17 @@ Survey findSurveyByFileDataId(@Param("fileDataId") String fileDataId);
 @SuppressWarnings("override")
 Optional<Survey> findById(Long id);  // For id query
 
+
+ // Find surveys by userId and surveyName where voterId is null
+    List<Survey> findByUserIdAndSurveyNameAndVoterIdIsNull(Long userId, String surveyName);
+
+    // Find surveys by userId where voterId is null
+    List<Survey> findByUserIdAndVoterIdIsNull(Long userId);
+
+    // Find surveys by surveyName where voterId is null
+    List<Survey> findBySurveyNameAndVoterIdIsNull(String surveyName);
+
+    // Find all surveys where voterId is null
+    List<Survey> findByVoterIdIsNull();
+
 }

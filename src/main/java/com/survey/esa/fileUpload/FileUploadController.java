@@ -288,15 +288,15 @@ public class FileUploadController {
     }
 
     @PutMapping("/markAsVoted/{id}")
-    public ResponseEntity<String> markAsVoted(@PathVariable Long id) {
-        boolean updated = fileDataService.updateVotedStatus(id);
+public ResponseEntity<String> markAsVoted(@PathVariable Long id) {
+    boolean updated = fileDataService.updateVotedStatus(id);
 
-        if (updated) {
-            return ResponseEntity.ok("Voted status updated successfully.");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Record not found or already voted.");
-        }
+    if (updated) {
+        return ResponseEntity.ok("Voted status toggled successfully.");
+    } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Record not found.");
     }
+}
 
     @GetMapping("/getAllVotedStatus")
     public ResponseEntity<List<String>> getAllVotedStatus() {
