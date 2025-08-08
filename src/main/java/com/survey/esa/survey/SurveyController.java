@@ -153,8 +153,10 @@ public ResponseEntity<Map<String, Object>> getSurveyStatus(@PathVariable String 
         existingSurvey.setQues4(updatedSurvey.getQues4());
         existingSurvey.setQues5(updatedSurvey.getQues5());
         existingSurvey.setQues6(updatedSurvey.getQues6());
+        existingSurvey.setRole(updatedSurvey.getRole());
         existingSurvey.setSurveyName(updatedSurvey.getSurveyName());
         existingSurvey.setUserId(updatedSurvey.getUserId());
+        existingSurvey.setUpdatedBy(updatedSurvey.getUpdatedBy());
         existingSurvey.setUpdatedDate(updatedSurvey.getUpdatedDate()); // Update the timestamp for updatedDate
 
         // Save the updated Survey back to the database
@@ -196,6 +198,8 @@ public ResponseEntity<Map<String, Object>> getSurveyStatus(@PathVariable String 
         existingSurvey.setQues4(updatedSurvey.getQues4());
         existingSurvey.setQues5(updatedSurvey.getQues5());
         existingSurvey.setQues6(updatedSurvey.getQues6());
+        existingSurvey.setUpdatedBy(updatedSurvey.getUpdatedBy());
+        existingSurvey.setRole(updatedSurvey.getRole());
         existingSurvey.setSurveyName(updatedSurvey.getSurveyName());
         existingSurvey.setUserId(updatedSurvey.getUserId());
         existingSurvey.setUpdatedDate(updatedSurvey.getUpdatedDate()); // Update the timestamp for updatedDate
