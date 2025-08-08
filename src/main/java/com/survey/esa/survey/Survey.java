@@ -4,6 +4,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -55,7 +56,9 @@ public class Survey {
     private String ques6;
     @JsonFormat(pattern = "hh:mm a dd-MMM-yyyy", timezone = "Asia/Kolkata")
     private LocalDateTime createdAt;
+    @JsonProperty("created_by")
     private String createdBy;
+    @JsonProperty("updated_by")
     private String updatedBy;
     @JsonFormat(pattern = "hh:mm a dd-MMM-yyyy", timezone = "Asia/Kolkata")
     private LocalDateTime updatedDate;
@@ -63,6 +66,8 @@ public class Survey {
     private Long userId;
     @Column(name = "survey_name") 
     private String surveyName;
+    @Column(name="role")
+    private String role;
 
     public Survey() {
     }
@@ -70,9 +75,10 @@ public class Survey {
     public Survey(Long id, String fileDataId, String phoneNumber, String voter_type, boolean isVerified, String booth,
             String constituency, String houseNumber, String gender, String name, String voterId, String voterStatus,
             String whatsappNumber, String ques1, String ques2, String ques3, String ques4, String ques5, String ques6,
-            LocalDateTime createdAt, String createdBy, String updatedBy, LocalDateTime updatedDate, String surveyName,Long userId) {
+            LocalDateTime createdAt, String createdBy, String updatedBy, LocalDateTime updatedDate, String surveyName,Long userId,String role) {
         this.id = id;
         this.fileDataId = fileDataId;
+        this.role=role;
         this.phoneNumber = phoneNumber;
         this.Voter_type = voter_type;
         this.userId = userId;
@@ -296,6 +302,14 @@ public class Survey {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public void setRole(String role){
+        this.role = role;
+    }
+
+    public String getRole(){
+        return role;
     }
 
      @PrePersist

@@ -1,6 +1,7 @@
 package com.survey.esa.survey;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -9,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api2/survey")
@@ -29,6 +32,7 @@ public class SurveyController {
     // Endpoint to submit a survey response
     @PostMapping("/submit")
     public Survey submitSurvey(@RequestBody Survey survey) {
+        System.out.println("Controller reached. Survey received: " + survey);
         return surveyService.saveSurvey(survey);
     }
 
@@ -42,28 +46,33 @@ public class SurveyController {
         return surveyService.getSurveyVoteCounts(); // Returns a Map for each question
     }
 
-    @GetMapping("/filterByConstituencyAndBooth")
+    @GetMapping("/filterBySurveyNameAndConstituency")
     public ResponseEntity<Map<String, Map<String, Long>>> getSurveyVoteCountsByFilter(
-            @RequestParam("constituency") String constituency,
-            @RequestParam(value = "booth", required = false) String booth) {
+            @RequestParam("surveyName") String surveyName, // Make surveyName mandatory
+            @RequestParam(value = "constituency", required = false) String constituency, // Optional
+            @RequestParam(value = "booth", required = false) String booth) {  // Optional
 
-        // Trim spaces and make the comparison case-insensitive for both constituency
-        // and booth
-        constituency = constituency.trim().toLowerCase();
+        // Trim spaces and make the comparison case-insensitive for constituency and booth
+        if (constituency != null) {
+            constituency = constituency.trim().toLowerCase();
+        }
         if (booth != null && !booth.isEmpty()) {
-            booth = booth.trim().toLowerCase(); // Trim any extra spaces from booth number
+            booth = booth.trim().toLowerCase();  // Trim any extra spaces from booth number
         }
 
         Map<String, Map<String, Long>> voteCounts;
 
         try {
             // Call the service method to get the counts based on provided parameters
-            if (booth == null || booth.isEmpty()) {
-                // If booth is not provided, filter by constituency only
-                voteCounts = surveyService.getSurveyVoteCountsFiltered(constituency, null);
+            if (constituency == null && booth == null) {
+                // If both constituency and booth are not provided, filter only by surveyName
+                voteCounts = surveyService.getSurveyVoteCountsFiltered(surveyName, null, null);
+            } else if (booth == null || booth.isEmpty()) {
+                // If only constituency is provided, filter by constituency and surveyName
+                voteCounts = surveyService.getSurveyVoteCountsFiltered(surveyName, constituency, null);
             } else {
-                // If booth is provided, filter by both constituency and booth
-                voteCounts = surveyService.getSurveyVoteCountsFiltered(constituency, booth);
+                // If both constituency and booth are provided, filter by all three parameters
+                voteCounts = surveyService.getSurveyVoteCountsFiltered(surveyName, constituency, booth);
             }
             return ResponseEntity.ok(voteCounts);
         } catch (Exception e) {
@@ -79,6 +88,22 @@ public class SurveyController {
     public List<Survey> getAllVoters() {
         return surveyRepository.findAll(); // Returns all surveys, including their verification status
     }
+
+   @GetMapping("/voters/{fileDataId}")
+public ResponseEntity<Map<String, Object>> getSurveyStatus(@PathVariable String fileDataId) {
+    System.out.println("fileDataId from URL: " + fileDataId); // Log the fileDataId
+
+    // Fetch the survey based on fileDataId
+    Survey survey = surveyRepository.findSurveyByFileDataId(fileDataId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Survey not found"));
+
+    // Create the response map with only required fields
+    Map<String, Object> response = new HashMap<>();
+    response.put("isVerified", survey.isVerified());  // Include isVerified field
+    response.put("id", survey.getId());  // Include id field
+
+    return ResponseEntity.ok(response);
+}
 
     @GetMapping("/votersbyId")
     public List<Survey> getAllVoters(

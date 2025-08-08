@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface SurveyRepository extends JpaRepository<Survey, Long> {
-
     // For ques1
     @Query("SELECT s.ques1, COUNT(s) FROM Survey s GROUP BY s.ques1")
     List<Object[]> countVotesByQues1();
@@ -74,7 +73,88 @@ List<Object[]> countVotesByQues6FilteredByConstituency(@Param("constituency") St
 @Query(value = "SELECT s.ques1, COUNT(*) FROM survey s WHERE LOWER(s.constituency) = LOWER(:constituency) GROUP BY s.ques1", nativeQuery = true)
 List<Object[]> countVotesByQues1FilteredByConstituency(@Param("constituency") String constituency);
 
-// For filtering by constituency and booth
+// .............................................................................................
+
+// Query for filtering by both surveyName, constituency, and booth
+@Query(value = "SELECT s.ques1, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) AND LOWER(REPLACE(s.constituency, ' ', '')) = LOWER(:constituency) AND LOWER(REPLACE(s.booth, ' ', '')) = LOWER(:booth) GROUP BY s.ques1, s.survey_name, s.constituency, s.booth", nativeQuery = true)
+List<Object[]> countVotesByQues1Filtered(@Param("surveyName") String surveyName, @Param("constituency") String constituency, @Param("booth") String booth);
+
+// Query for filtering by surveyName and constituency only (booth is null or empty)
+@Query(value = "SELECT s.ques1, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) AND LOWER(REPLACE(s.constituency, ' ', '')) = LOWER(:constituency) GROUP BY s.ques1, s.survey_name, s.constituency", nativeQuery = true)
+List<Object[]> countVotesByQues1FilteredByConstituency(@Param("surveyName") String surveyName, @Param("constituency") String constituency);
+
+// Query for filtering by surveyName only
+@Query(value = "SELECT s.ques1, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) GROUP BY s.ques1, s.survey_name", nativeQuery = true)
+List<Object[]> countVotesByQues1FilteredBySurveyName(@Param("surveyName") String surveyName);
+
+
+// Query for filtering by both surveyName, constituency, and booth
+@Query(value = "SELECT s.ques2, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) AND LOWER(REPLACE(s.constituency, ' ', '')) = LOWER(:constituency) AND LOWER(REPLACE(s.booth, ' ', '')) = LOWER(:booth) GROUP BY s.ques2, s.survey_name, s.constituency, s.booth", nativeQuery = true)
+List<Object[]> countVotesByQues2Filtered(@Param("surveyName") String surveyName, @Param("constituency") String constituency, @Param("booth") String booth);
+
+// Query for filtering by surveyName and constituency only (booth is null or empty)
+@Query(value = "SELECT s.ques2, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) AND LOWER(REPLACE(s.constituency, ' ', '')) = LOWER(:constituency) GROUP BY s.ques2, s.survey_name, s.constituency", nativeQuery = true)
+List<Object[]> countVotesByQues2FilteredByConstituency(@Param("surveyName") String surveyName, @Param("constituency") String constituency);
+
+// Query for filtering by surveyName only
+@Query(value = "SELECT s.ques2, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) GROUP BY s.ques2, s.survey_name", nativeQuery = true)
+List<Object[]> countVotesByQues2FilteredBySurveyName(@Param("surveyName") String surveyName);
+
+
+// Query for filtering by both surveyName, constituency, and booth
+@Query(value = "SELECT s.ques3, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) AND LOWER(REPLACE(s.constituency, ' ', '')) = LOWER(:constituency) AND LOWER(REPLACE(s.booth, ' ', '')) = LOWER(:booth) GROUP BY s.ques3, s.survey_name, s.constituency, s.booth", nativeQuery = true)
+List<Object[]> countVotesByQues3Filtered(@Param("surveyName") String surveyName, @Param("constituency") String constituency, @Param("booth") String booth);
+
+// Query for filtering by surveyName and constituency only (booth is null or empty)
+@Query(value = "SELECT s.ques3, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) AND LOWER(REPLACE(s.constituency, ' ', '')) = LOWER(:constituency) GROUP BY s.ques3, s.survey_name, s.constituency", nativeQuery = true)
+List<Object[]> countVotesByQues3FilteredByConstituency(@Param("surveyName") String surveyName, @Param("constituency") String constituency);
+
+// Query for filtering by surveyName only
+@Query(value = "SELECT s.ques3, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) GROUP BY s.ques3, s.survey_name", nativeQuery = true)
+List<Object[]> countVotesByQues3FilteredBySurveyName(@Param("surveyName") String surveyName);
+
+
+// Query for filtering by both surveyName, constituency, and booth
+@Query(value = "SELECT s.ques4, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) AND LOWER(REPLACE(s.constituency, ' ', '')) = LOWER(:constituency) AND LOWER(REPLACE(s.booth, ' ', '')) = LOWER(:booth) GROUP BY s.ques4, s.survey_name, s.constituency, s.booth", nativeQuery = true)
+List<Object[]> countVotesByQues4Filtered(@Param("surveyName") String surveyName, @Param("constituency") String constituency, @Param("booth") String booth);
+
+// Query for filtering by surveyName and constituency only (booth is null or empty)
+@Query(value = "SELECT s.ques4, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) AND LOWER(REPLACE(s.constituency, ' ', '')) = LOWER(:constituency) GROUP BY s.ques4, s.survey_name, s.constituency", nativeQuery = true)
+List<Object[]> countVotesByQues4FilteredByConstituency(@Param("surveyName") String surveyName, @Param("constituency") String constituency);
+
+// Query for filtering by surveyName only
+@Query(value = "SELECT s.ques4, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) GROUP BY s.ques4, s.survey_name", nativeQuery = true)
+List<Object[]> countVotesByQues4FilteredBySurveyName(@Param("surveyName") String surveyName);
+
+
+// Query for filtering by both surveyName, constituency, and booth
+@Query(value = "SELECT s.ques5, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) AND LOWER(REPLACE(s.constituency, ' ', '')) = LOWER(:constituency) AND LOWER(REPLACE(s.booth, ' ', '')) = LOWER(:booth) GROUP BY s.ques5, s.survey_name, s.constituency, s.booth", nativeQuery = true)
+List<Object[]> countVotesByQues5Filtered(@Param("surveyName") String surveyName, @Param("constituency") String constituency, @Param("booth") String booth);
+
+// Query for filtering by surveyName and constituency only (booth is null or empty)
+@Query(value = "SELECT s.ques5, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) AND LOWER(REPLACE(s.constituency, ' ', '')) = LOWER(:constituency) GROUP BY s.ques5, s.survey_name, s.constituency", nativeQuery = true)
+List<Object[]> countVotesByQues5FilteredByConstituency(@Param("surveyName") String surveyName, @Param("constituency") String constituency);
+
+// Query for filtering by surveyName only
+@Query(value = "SELECT s.ques5, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) GROUP BY s.ques5, s.survey_name", nativeQuery = true)
+List<Object[]> countVotesByQues5FilteredBySurveyName(@Param("surveyName") String surveyName);
+
+
+// Query for filtering by both surveyName, constituency, and booth
+@Query(value = "SELECT s.ques6, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) AND LOWER(REPLACE(s.constituency, ' ', '')) = LOWER(:constituency) AND LOWER(REPLACE(s.booth, ' ', '')) = LOWER(:booth) GROUP BY s.ques6, s.survey_name, s.constituency, s.booth", nativeQuery = true)
+List<Object[]> countVotesByQues6Filtered(@Param("surveyName") String surveyName, @Param("constituency") String constituency, @Param("booth") String booth);
+
+// Query for filtering by surveyName and constituency only (booth is null or empty)
+@Query(value = "SELECT s.ques6, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) AND LOWER(REPLACE(s.constituency, ' ', '')) = LOWER(:constituency) GROUP BY s.ques6, s.survey_name, s.constituency", nativeQuery = true)
+List<Object[]> countVotesByQues6FilteredByConstituency(@Param("surveyName") String surveyName, @Param("constituency") String constituency);
+
+// Query for filtering by surveyName only
+@Query(value = "SELECT s.ques6, COUNT(*) FROM survey s WHERE LOWER(REPLACE(s.survey_name, ' ', '')) = LOWER(:surveyName) GROUP BY s.ques6, s.survey_name", nativeQuery = true)
+List<Object[]> countVotesByQues6FilteredBySurveyName(@Param("surveyName") String surveyName);
+
+
+// .............................................................................................
+
 
 // Repeat the above for other questions (ques2, ques3, etc.)
 @SuppressWarnings("override")
@@ -85,7 +165,9 @@ List<Survey> findByUserIdAndSurveyName(Long userId, String surveyName);
 Optional<Survey> findBySurveyNameAndFileDataId(String surveyName, String fileDataId);
 Optional<Survey> findBySurveyNameAndId(String surveyName, Long id);
 
-Optional<Survey> findByFileDataId(String fileDataId);  // For fileDataId query
+Optional<Survey> findByFileDataId(String fileDataId);
+@Query(value = "SELECT * FROM survey WHERE filedata_id = :fileDataId LIMIT 1", nativeQuery = true)
+    Optional<Survey> findSurveyByFileDataId(@Param("fileDataId") String fileDataId);
 @SuppressWarnings("override")
 Optional<Survey> findById(Long id);  // For id query
 

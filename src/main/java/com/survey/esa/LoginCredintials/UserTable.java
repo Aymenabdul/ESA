@@ -31,7 +31,7 @@ public class UserTable {
     private OffsetDateTime createdAt;
     
     @Column(name = "is_accepted")
-    private String isAccept = "pending";
+    private String isAccept = "Declined";
 
     // This method will be automatically called by JPA right before an entity is first saved to the database.
     @PrePersist

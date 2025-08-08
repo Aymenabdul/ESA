@@ -114,7 +114,7 @@ public ResponseEntity<Map<String, String>> login(@RequestBody UserTable loginCre
         }
 
         // Check if isAccept is Pending or Declined for non-admin users
-        if ("pending".equals(foundUser.getAccept()) || "Declined".equals(foundUser.getAccept())) {
+        if ("Declined".equals(foundUser.getAccept())) {
             return new ResponseEntity<>(
                     Map.of("message", "Your account is either pending or declined. Please contact the admin."),
                     HttpStatus.FORBIDDEN);

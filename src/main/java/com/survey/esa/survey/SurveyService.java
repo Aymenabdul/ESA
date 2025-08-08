@@ -15,32 +15,42 @@ public class SurveyService {
 
     // Method to save survey response
     public Survey saveSurvey(Survey survey) {
-        return surveyRepository.save(survey);
-    }
-
+    // Log the received survey object to check its contents
+    System.out.println("Saving Survey: " + survey);
+    return surveyRepository.save(survey);
+}
     public List<Survey> getAllSurveys() {
         return surveyRepository.findAll(); // This fetches all Survey entities from the DB
     }
 
-   public Map<String, Map<String, Long>> getSurveyVoteCountsFiltered(String constituency, String booth) {
+   public Map<String, Map<String, Long>> getSurveyVoteCountsFiltered(String surveyName, String constituency, String booth) {
     Map<String, Map<String, Long>> voteCounts = new HashMap<>();
 
-    if (booth == null || booth.isEmpty()) {
-        // Query by constituency only
-        voteCounts.put("ques1", getVoteCount(surveyRepository.countVotesByQues1FilteredByConstituency(constituency)));
-        voteCounts.put("ques2", getVoteCount(surveyRepository.countVotesByQues2FilteredByConstituency(constituency)));
-        voteCounts.put("ques3", getVoteCount(surveyRepository.countVotesByQues3FilteredByConstituency(constituency)));
-        voteCounts.put("ques4", getVoteCount(surveyRepository.countVotesByQues4FilteredByConstituency(constituency)));
-        voteCounts.put("ques5", getVoteCount(surveyRepository.countVotesByQues5FilteredByConstituency(constituency)));
-        voteCounts.put("ques6", getVoteCount(surveyRepository.countVotesByQues6FilteredByConstituency(constituency)));
+    // Query based on provided filters
+    if (constituency == null && booth == null) {
+        // Filter by surveyName only
+        voteCounts.put("ques1", getVoteCount(surveyRepository.countVotesByQues1FilteredBySurveyName(surveyName)));
+        voteCounts.put("ques2", getVoteCount(surveyRepository.countVotesByQues2FilteredBySurveyName(surveyName)));
+        voteCounts.put("ques3", getVoteCount(surveyRepository.countVotesByQues3FilteredBySurveyName(surveyName)));
+        voteCounts.put("ques4", getVoteCount(surveyRepository.countVotesByQues4FilteredBySurveyName(surveyName)));
+        voteCounts.put("ques5", getVoteCount(surveyRepository.countVotesByQues5FilteredBySurveyName(surveyName)));
+        voteCounts.put("ques6", getVoteCount(surveyRepository.countVotesByQues6FilteredBySurveyName(surveyName)));
+    } else if (booth == null || booth.isEmpty()) {
+        // Filter by surveyName and constituency only
+        voteCounts.put("ques1", getVoteCount(surveyRepository.countVotesByQues1FilteredByConstituency(surveyName, constituency)));
+        voteCounts.put("ques2", getVoteCount(surveyRepository.countVotesByQues2FilteredByConstituency(surveyName, constituency)));
+        voteCounts.put("ques3", getVoteCount(surveyRepository.countVotesByQues3FilteredByConstituency(surveyName, constituency)));
+        voteCounts.put("ques4", getVoteCount(surveyRepository.countVotesByQues4FilteredByConstituency(surveyName, constituency)));
+        voteCounts.put("ques5", getVoteCount(surveyRepository.countVotesByQues5FilteredByConstituency(surveyName, constituency)));
+        voteCounts.put("ques6", getVoteCount(surveyRepository.countVotesByQues6FilteredByConstituency(surveyName, constituency)));
     } else {
-        // Query by both constituency and booth
-        voteCounts.put("ques1", getVoteCount(surveyRepository.countVotesByQues1Filtered(constituency, booth)));
-        voteCounts.put("ques2", getVoteCount(surveyRepository.countVotesByQues2Filtered(constituency, booth)));
-        voteCounts.put("ques3", getVoteCount(surveyRepository.countVotesByQues3Filtered(constituency, booth)));
-        voteCounts.put("ques4", getVoteCount(surveyRepository.countVotesByQues4Filtered(constituency, booth)));
-        voteCounts.put("ques5", getVoteCount(surveyRepository.countVotesByQues5Filtered(constituency, booth)));
-        voteCounts.put("ques6", getVoteCount(surveyRepository.countVotesByQues6Filtered(constituency, booth)));
+        // Filter by surveyName, constituency, and booth
+        voteCounts.put("ques1", getVoteCount(surveyRepository.countVotesByQues1Filtered(surveyName, constituency, booth)));
+        voteCounts.put("ques2", getVoteCount(surveyRepository.countVotesByQues2Filtered(surveyName, constituency, booth)));
+        voteCounts.put("ques3", getVoteCount(surveyRepository.countVotesByQues3Filtered(surveyName, constituency, booth)));
+        voteCounts.put("ques4", getVoteCount(surveyRepository.countVotesByQues4Filtered(surveyName, constituency, booth)));
+        voteCounts.put("ques5", getVoteCount(surveyRepository.countVotesByQues5Filtered(surveyName, constituency, booth)));
+        voteCounts.put("ques6", getVoteCount(surveyRepository.countVotesByQues6Filtered(surveyName, constituency, booth)));
     }
 
     return voteCounts;
@@ -55,6 +65,8 @@ private Map<String, Long> getVoteCount(List<Object[]> results) {
     }
     return voteCounts;
 }
+
+
 
 
 
