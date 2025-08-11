@@ -70,6 +70,7 @@ public class Survey {
     @Column(name = "role")
     private String role;
     private String age;
+    private String religion;
 
     public Survey() {
     }
@@ -77,7 +78,7 @@ public class Survey {
     public Survey(Long id, String fileDataId, String phoneNumber, String voter_type, boolean isVerified, String booth,
             String constituency, String houseNumber, String gender, String name, String voterId, String voterStatus,
             String whatsappNumber, String ques1, String ques2, String ques3, String ques4, String ques5, String ques6,
-            LocalDateTime createdAt, String createdBy, String updatedBy, LocalDateTime updatedDate, String surveyName, Long userId, String role, String age) {
+            LocalDateTime createdAt, String createdBy, String updatedBy, LocalDateTime updatedDate, String surveyName, Long userId, String role, String age,String religion) {
         this.id = id;
         this.fileDataId = fileDataId;
         this.role = role;
@@ -94,6 +95,7 @@ public class Survey {
         this.voterId = voterId;
         this.VoterStatus = voterStatus;
         this.WhatsappNumber = whatsappNumber;
+        this.religion = religion;
         this.ques1 = ques1;
         this.ques2 = ques2;
         this.ques3 = ques3;
@@ -321,6 +323,14 @@ public class Survey {
 
     public String getAge() {
         return age;
+    }
+
+    public void setReligion(String religion) {
+        this.religion = religion;
+    }
+
+    public String getReligion() {
+        return religion;
     }
 
     @PrePersist

@@ -164,6 +164,7 @@ public List<Survey> getAllVoters(
         existingSurvey.setRole(updatedSurvey.getRole());
         existingSurvey.setAge(updatedSurvey.getAge());
         existingSurvey.setSurveyName(updatedSurvey.getSurveyName());
+        existingSurvey.setReligion(updatedSurvey.getReligion());
         existingSurvey.setUserId(updatedSurvey.getUserId());
         existingSurvey.setUpdatedBy(updatedSurvey.getUpdatedBy());
         existingSurvey.setUpdatedDate(updatedSurvey.getUpdatedDate()); // Update the timestamp for updatedDate
@@ -207,6 +208,7 @@ public List<Survey> getAllVoters(
         existingSurvey.setQues4(updatedSurvey.getQues4());
         existingSurvey.setQues5(updatedSurvey.getQues5());
         existingSurvey.setQues6(updatedSurvey.getQues6());
+        existingSurvey.setReligion(updatedSurvey.getReligion());
         existingSurvey.setUpdatedBy(updatedSurvey.getUpdatedBy());
         existingSurvey.setRole(updatedSurvey.getRole());
         existingSurvey.setAge(updatedSurvey.getAge());

@@ -34,6 +34,7 @@ public class FIledata {
     private LocalDateTime createAt;
     private boolean isActive = false;
     private boolean voted = false;
+    private boolean verified = false;
 
     public FIledata() {
     }
@@ -41,7 +42,7 @@ public class FIledata {
     public FIledata(String surveyName, String assemblyConstituency, String booth, String section,
             String serialNumber, String voterID, String name, String relationType,
             String relationName, String houseNumber, String age, String gender,
-            boolean isActive, boolean voted, LocalDateTime createAt) {
+            boolean isActive, boolean voted,boolean verified, LocalDateTime createAt) {
         this.surveyName = surveyName;
         this.assemblyConstituency = assemblyConstituency;
         this.booth = booth;
@@ -57,6 +58,7 @@ public class FIledata {
         this.gender = gender;
         this.isActive = isActive;
         this.voted = voted;
+        this.verified=verified;
     }
 
     public Long getId() {
@@ -185,6 +187,13 @@ public class FIledata {
 
     public void setCreateAt(LocalDateTime createAt) {
         this.createAt = createAt;
+    }
+    public boolean getVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
     }
 
     @PrePersist

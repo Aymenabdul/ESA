@@ -1,4 +1,5 @@
 package com.survey.esa.fileUpload;
+
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -119,7 +120,7 @@ public class FileUploadController {
 
                 FIledata fileData = new FIledata(
                         surveyName, assemblyConstituency, booth, section, serialNumber, voterID, name,
-                        relationType, relationName, houseNumber, age, gender, false, false, null
+                        relationType, relationName, houseNumber, age, gender, false, false,false, null
                 );
                 if (isValid(fileData)) {
                     fileDataList.add(fileData);
@@ -244,6 +245,11 @@ public class FileUploadController {
         return fileDataService.getDistinctAssemblyConstituenciesBySurveyName(surveyName);
     }
 
+    @GetMapping("/constituencies")
+    public List<String> getDistinctConstituencies() {
+        return fileDataService.getDistinctAssemblyConstituencies();
+    }
+
     @GetMapping("/distinct-booths")
     public ResponseEntity<List<String>> getDistinctBooths(
             @RequestParam("surveyName") String surveyName,
@@ -288,15 +294,27 @@ public class FileUploadController {
     }
 
     @PutMapping("/markAsVoted/{id}")
-public ResponseEntity<String> markAsVoted(@PathVariable Long id) {
-    boolean updated = fileDataService.updateVotedStatus(id);
+    public ResponseEntity<String> markAsVoted(@PathVariable Long id) {
+        boolean updated = fileDataService.updateVotedStatus(id);
+
+        if (updated) {
+            return ResponseEntity.ok("Voted status toggled successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Record not found.");
+        }
+    }
+
+    @PutMapping("/markAsVerified/{id}")
+public ResponseEntity<String> markAsVerified(@PathVariable Long id) {
+    boolean updated = fileDataService.updateVerifiedStatus(id); // Update the verified status
 
     if (updated) {
-        return ResponseEntity.ok("Voted status toggled successfully.");
+        return ResponseEntity.ok("Verified status toggled successfully.");
     } else {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Record not found.");
     }
 }
+
 
     @GetMapping("/getAllVotedStatus")
     public ResponseEntity<List<String>> getAllVotedStatus() {

@@ -1,13 +1,15 @@
 package com.survey.esa.jwttoken;
 
+import java.io.IOException;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -20,9 +22,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
+        String uri = request.getRequestURI();
+        System.out.println("Filter hit for URI: " + uri);
         // Skip the filter for public routes like login and signup
         if (isPublicRoute(request)) {
+            System.out.println("Skipping filter for public route: " + uri);
             filterChain.doFilter(request, response);
             return;
         }
@@ -61,9 +65,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isPublicRoute(HttpServletRequest request) {
-        // Check if the request is for signup or login routes
+        // Check if the request is for public routes like login, signup, or reset-password
         String uri = request.getRequestURI();
-        return uri.equals("/api2/login") || uri.equals("/api2/signup");
+        System.out.println("Requested URI: " + uri); // Log the URI for debugging
+        return uri.equals("/api2/login") || uri.equals("/api2/signup") || uri.equals("/api2/reset-password")
+        || uri.equals("/api2/file/constituencies");
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {

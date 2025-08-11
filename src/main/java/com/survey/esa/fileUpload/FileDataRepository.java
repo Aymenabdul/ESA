@@ -86,4 +86,6 @@ public interface FileDataRepository extends JpaRepository<FIledata, Long> {
     @Query(value = "SELECT COUNT(f.voterid) FROM Filedata f WHERE f.survey_name = :surveyName AND f.assembly_constituency = :constituency AND (:booth IS NULL OR f.booth = :booth)", nativeQuery = true)
     long countVotersBySurveyNameAndConstituencyAndBooth(@Param("surveyName") String surveyName, @Param("constituency") String constituency, @Param("booth") String booth);
 
+    @Query("SELECT DISTINCT f.assemblyConstituency FROM FIledata f")
+    List<String> findDistinctAssemblyConstituencies();
 }

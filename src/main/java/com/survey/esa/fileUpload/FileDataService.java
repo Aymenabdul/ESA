@@ -167,4 +167,21 @@ public class FileDataService {
         return true;
     }
 
+    public List<String> getDistinctAssemblyConstituencies() {
+        return fileDataRepository.findDistinctAssemblyConstituencies();
+    }
+
+    public boolean updateVerifiedStatus(Long id) {
+    Optional<FIledata> fileDataOpt = fileDataRepository.findById(id); // Assuming you're using JPA
+
+    if (fileDataOpt.isPresent()) {
+        FIledata fileData = fileDataOpt.get();
+        // Toggle the verified status (assuming it's a boolean field)
+        fileData.setVerified(!fileData.getVerified());
+
+        fileDataRepository.save(fileData); // Save the updated file data record
+        return true;
+    }
+    return false; // Return false if the record wasn't found
+}
 }
